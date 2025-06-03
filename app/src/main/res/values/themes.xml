@@ -1,7 +1,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Base App Theme -->
-    <style name="Base.Theme.Dowinn" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="Base.Theme.Dowinn" parent="Theme.Material3.Dark.NoActionBar">
         <!-- Customize your light/dark theme colors here -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorOnPrimary">@color/white</item>

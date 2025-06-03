@@ -9,8 +9,13 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.NavController
+import androidx.navigation.Navigation
+import com.ritika.dowinn.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+    private lateinit var navController: NavController
+    private lateinit var binding: ActivityMainBinding
 
     // Flag to track splash visibility
     private var isSplashDone = false
