@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.ritika.dowinn"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.ritika.dowinn"
@@ -36,7 +36,8 @@ android {
 }
 
 dependencies {
-
+// splash screen dependencies
+    implementation ("androidx.core:core-splashscreen:1.0.1")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)

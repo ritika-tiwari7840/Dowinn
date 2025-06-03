@@ -1,9 +1,32 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
+    <!-- Base App Theme -->
     <style name="Base.Theme.Dowinn" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Customize your light/dark theme colors here -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainer</item>
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
 
+    <!-- Main Theme -->
     <style name="Theme.Dowinn" parent="Base.Theme.Dowinn" />
+
+    <!-- Splash Screen Theme (Android 12+) -->
+    <style name="Theme.Dowinn.Splash" parent="Theme.SplashScreen">
+        <!-- Splash screen background -->
+        <item name="windowSplashScreenBackground">@color/colorPrimaryContainer</item>
+
+        <!-- Splash screen icon or animated logo -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/temp_logo</item>
+
+        <!-- Optional: icon background -->
+        <item name="windowSplashScreenIconBackgroundColor">@color/colorPrimaryContainer</item>
+
+        <!-- After splash, go to main theme -->
+        <item name="postSplashScreenTheme">@style/Theme.Dowinn</item>
+    </style>
+
 </resources>
