@@ -5,4 +5,5 @@
     <color name="colorPrimaryContainer">#3C3C3C</color>
     <color name="colorOnPrimaryContainer">#333232</color>
     <color name="white">#FFFFFF</color>
+    <color name="grey">#A8A1A1</color>
 </resources>

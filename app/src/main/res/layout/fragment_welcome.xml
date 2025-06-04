@@ -4,23 +4,85 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    tools:context=".WelcomeFragment">
+    tools:context=".WelcomeFragment"
+    android:background="@color/colorPrimaryContainer"
+    >
 
-    <!-- TODO: Update blank fragment layout -->
     <TextView
-        android:id="@+id/welcome_text"
+        android:id="@+id/welcomeTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Welcome to Dowinn"
+        android:textAppearance="@style/welcome_to_"
+        app:layout_constraintTop_toBottomOf="@id/guideline_top"
+       app:layout_constraintStart_toEndOf="@id/guideline_left"
+        app:layout_constraintEnd_toStartOf="@id/guideline_right"
+        />
+
+    <TextView
+        android:id="@+id/stayOnTrackTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stay on Track. Stay Winning."
+        android:textAppearance="@style/stay_on_track"
+        app:layout_constraintTop_toBottomOf="@id/welcomeTextView"
+        app:layout_constraintStart_toEndOf="@id/guideline_left"
+        app:layout_constraintEnd_toStartOf="@id/guideline_right"
+        />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/signInButton"
+        style="@style/sign_in_button"
+        android:layout_width="0dp"
+        android:layout_height="70dp"
+        android:text="Sign in with Google"
+android:textAlignment="viewStart"
+        app:layout_constraintTop_toBottomOf="@id/stayOnTrackTextView"
+        app:layout_constraintStart_toEndOf="@id/guideline_left"
+        app:layout_constraintEnd_toStartOf="@id/guideline_right"
+        app:rippleColor="@android:color/transparent"
+        app:icon="@drawable/google_icon"
+    app:iconGravity="textStart"
+    app:iconPadding="10dp"
+    app:iconTint="@null"
+        app:iconSize="25dp"
+    />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/signUpButton"
+        style="@style/sign_in_button"
+        android:layout_width="260dp"
+        android:layout_height="70dp"
+        android:text="Sign up"
+        android:layout_marginTop="15dp"
+        app:rippleColor="@android:color/transparent"
+        app:layout_constraintTop_toBottomOf="@id/signInButton"
+        app:layout_constraintStart_toEndOf="@id/guideline_left"
+        app:layout_constraintEnd_toStartOf="@id/guideline_right" />
+
+
+
+    <!--    guidelines for layout-->
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_left"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="welcome to dowinn"
-        android:textAlignment="center"
-        android:textSize="24sp"
-        android:layout_margin="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:gravity="center"
-
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.02"
         />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_right"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.98"
+        />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_top"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5"
+       />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
