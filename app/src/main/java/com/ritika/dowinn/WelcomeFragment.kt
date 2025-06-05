@@ -33,7 +33,7 @@ class WelcomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         navController = Navigation.findNavController(view)
-        var signupButton= binding.signUpButton.setOnClickListener({
+        var signupButton = binding.signUpButton.setOnClickListener({
             navController.navigate(R.id.action_welcomeFragment_to_sliderFragment)
         })
     }

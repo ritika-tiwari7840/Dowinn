@@ -1,18 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimaryContainer"
     tools:context=".SliderFragment">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/materialDivider1"
+        style="@style/divider_style"
+        android:layout_width="0dp"
+        android:layout_height="3dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginEnd="3dp"
+        app:layout_constraintEnd_toStartOf="@id/materialDivider2"
+        app:layout_constraintHorizontal_chainStyle="spread_inside"
+        app:layout_constraintStart_toStartOf="@id/guideline_left"
+        app:layout_constraintTop_toBottomOf="@id/guideline_top" />
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/materialDivider2"
+        style="@style/divider_style"
+        android:layout_width="0dp"
+        android:layout_height="3dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginEnd="3dp"
+        app:layout_constraintEnd_toStartOf="@id/materialDivider3"
+        app:layout_constraintStart_toEndOf="@id/materialDivider1"
+        app:layout_constraintTop_toBottomOf="@id/guideline_top" />
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/materialDivider3"
+        style="@style/divider_style"
+        android:layout_width="0dp"
+        android:layout_height="3dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginEnd="3dp"
+        app:layout_constraintEnd_toStartOf="@id/materialDivider4"
+        app:layout_constraintStart_toEndOf="@id/materialDivider2"
+        app:layout_constraintTop_toBottomOf="@id/guideline_top" />
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/materialDivider4"
+        style="@style/divider_style"
+        android:layout_width="0dp"
+        android:layout_height="3dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginEnd="3dp"
+        app:layout_constraintEnd_toStartOf="@id/materialDivider5"
+        app:layout_constraintStart_toEndOf="@id/materialDivider3"
+        app:layout_constraintTop_toBottomOf="@id/guideline_top" />
+
+    <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/materialDivider5"
+        style="@style/divider_style"
+        android:layout_width="0dp"
+        android:layout_height="3dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginEnd="3dp"
+        app:layout_constraintEnd_toEndOf="@id/guideline_right"
+        app:layout_constraintStart_toEndOf="@id/materialDivider4"
+        app:layout_constraintTop_toBottomOf="@id/guideline_top" />
+
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/guideline_bottom"
+        app:layout_constraintEnd_toEndOf="@id/guideline_right"
+
+        app:layout_constraintStart_toStartOf="@id/guideline_left"
+        app:layout_constraintTop_toBottomOf="@+id/materialDivider4" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.07" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.78" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_left"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="Slider Screen"
-        android:layout_gravity="center"
-        android:textSize="24sp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.02" />
 
-        />
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline_right"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.98" />
 
-</FrameLayout>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/continueButton"
+        style="@style/continue_button"
+        android:layout_width="260dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="20dp"
+        android:text="Continue"
+        app:layout_constraintEnd_toStartOf="@id/guideline_right"
+        app:layout_constraintStart_toEndOf="@id/guideline_left"
+        app:layout_constraintTop_toBottomOf="@id/guideline_bottom"
+        app:rippleColor="@android:color/transparent" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/skip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="13dp"
+        android:fontFamily="@font/regular"
+        android:text="Skip"
+        android:textColor="@color/grey"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toStartOf="@id/guideline_right"
+        app:layout_constraintStart_toEndOf="@id/guideline_left"
+        app:layout_constraintTop_toBottomOf="@id/continueButton" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
