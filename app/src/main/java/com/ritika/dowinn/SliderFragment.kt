@@ -35,23 +35,23 @@ class SliderFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val walkthroughItems = listOf(
             WalkthroughItem(
-                R.drawable.no_task,
+                R.drawable.slider_1,
                 "Smart Task Management",
                 "Organize your day effortlessly with a beautifully simple interface. Create, edit, and check off tasks with ease."
             ), WalkthroughItem(
-                R.drawable.no_task,
+                R.drawable.slider_2,
                 "Focus & Productivity",
                 "Stay focused and boost productivity by breaking your work into manageable steps and setting clear goals."
             ), WalkthroughItem(
-                R.drawable.no_task,
+                R.drawable.slider_3,
                 "Daily Habit Tracking",
                 "Track habits like workouts or morning routines to build consistency and stay motivated every day."
             ), WalkthroughItem(
-                R.drawable.no_task,
+                R.drawable.slider_4,
                 "Make Progress Fun",
                 "Enjoy ticking off tasks, keep your streak alive, and get rewarded for staying consistent."
             ), WalkthroughItem(
-                R.drawable.no_task,
+                R.drawable.slider_5,
                 "Visualize Your Productivity",
                 "Track your progress with clear insights and charts—see how consistent habits and completed tasks add up over time."
             )

@@ -7,10 +7,12 @@
     <fragment
         android:id="@+id/welcomeFragment"
         android:name="com.ritika.dowinn.WelcomeFragment"
-        android:label="Home" >
+        android:label="Home">
         <action
             android:id="@+id/action_welcomeFragment_to_sliderFragment"
-            app:destination="@id/sliderFragment" />
+            app:destination="@id/sliderFragment"
+            app:popUpTo="@id/welcomeFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 
     <fragment

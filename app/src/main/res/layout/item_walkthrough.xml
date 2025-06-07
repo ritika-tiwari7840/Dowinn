@@ -1,18 +1,17 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:gravity="center"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:layout_height="match_parent">
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
         android:contentDescription="@string/app_name"
-        android:scaleType="fitCenter" />
+        app:layout_constraintBottom_toTopOf="@+id/titleView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/titleView"
@@ -22,7 +21,11 @@
         android:fontFamily="@font/bold"
         android:textAlignment="center"
         android:textColor="@color/white"
-        android:textSize="25sp" />
+        android:textSize="25sp"
+        app:layout_constraintBottom_toTopOf="@+id/descriptionView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     <com.google.android.material.textview.MaterialTextView
         android:id="@+id/descriptionView"
@@ -30,8 +33,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="13dp"
         android:fontFamily="@font/regular"
-        android:justificationMode="inter_word"
+        android:paddingHorizontal="32dp"
         android:textAlignment="center"
         android:textColor="@color/white"
-        android:textSize="16sp" />
-</LinearLayout>
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/titleView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
