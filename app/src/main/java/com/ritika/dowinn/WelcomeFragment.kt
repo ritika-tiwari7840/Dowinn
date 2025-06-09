@@ -9,13 +9,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
-import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.navigation.NavController
-import androidx.navigation.Navigation
-import androidx.navigation.Navigation.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -24,11 +20,8 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.ritika.dowinn.databinding.ActivityMainBinding
 import com.ritika.dowinn.databinding.FragmentWelcomeBinding
-import com.google.firebase.FirebaseApp
 
-import androidx.navigation.fragment.findNavController
 
 class WelcomeFragment : Fragment() {
     private var _binding: FragmentWelcomeBinding? = null
@@ -47,6 +40,9 @@ class WelcomeFragment : Fragment() {
             if (result.resultCode == Activity.RESULT_OK) {
                 val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
                 handleSignInResult(task)
+            } else {
+                // Hide progress if sign-in was cancelled
+                showProgress(false)
             }
         }
     }
@@ -81,10 +77,14 @@ class WelcomeFragment : Fragment() {
         binding.signInButton.setOnClickListener {
             signInWithGoogle()
         }
+
+        // Initially hide progress
+        showProgress(false)
     }
 
     // Call this method when your sign-in button is clicked
     private fun signInWithGoogle() {
+        showProgress(true)
         val signInIntent = googleSignInClient.signInIntent
         googleSignInLauncher.launch(signInIntent)
     }
@@ -96,6 +96,7 @@ class WelcomeFragment : Fragment() {
             firebaseAuthWithGoogle(account.idToken!!)
         } catch (e: ApiException) {
             Log.w("GoogleAuth", "Google sign in failed", e)
+            showProgress(false)
             Toast.makeText(context, "Google sign in failed", Toast.LENGTH_SHORT).show()
         }
     }
@@ -104,6 +105,7 @@ class WelcomeFragment : Fragment() {
         val credential = GoogleAuthProvider.getCredential(idToken, null)
         firebaseAuth?.signInWithCredential(credential)
             ?.addOnCompleteListener(requireActivity()) { task ->
+                showProgress(false)
                 if (task.isSuccessful) {
                     Log.d("GoogleAuth", "Authentication successful")
                     val user = firebaseAuth?.currentUser
@@ -116,6 +118,12 @@ class WelcomeFragment : Fragment() {
                     Toast.makeText(context, "Authentication failed", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun showProgress(show: Boolean) {
+        binding.overlayLayout.visibility = if (show) View.VISIBLE else View.GONE
+        binding.progressBar.visibility = if (show) View.VISIBLE else View.GONE
+        binding.signInButton.isEnabled = !show
     }
 
     override fun onDestroyView() {

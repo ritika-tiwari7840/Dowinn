@@ -8,5 +8,6 @@
     <color name="grey">#A8A1A1</color>
     <color name="dividerColor">#606060</color>
     <color name="divider_selected">#FFFFFF</color>
+    <color name="black_overlay">#80000000</color>
 
 </resources>
