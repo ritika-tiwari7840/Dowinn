@@ -36,15 +36,36 @@ class MainActivity : AppCompatActivity() {
 
         // Splash screen delay
         Handler(Looper.getMainLooper()).postDelayed({
-            setContentView(R.layout.activity_main)
+            // Inflate layout and set content view
+            binding = ActivityMainBinding.inflate(layoutInflater)
+            setContentView(binding.root)
 
-            ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
+            // Apply window insets for padding
+            ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
                 v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
                 insets
             }
 
+            // Mark splash screen done
             isSplashDone = true
+
+            // Initialize NavController
+            navController = Navigation.findNavController(this, R.id.nav_host_fragment)
+
+            val sharedPref = getSharedPreferences("onboarding", MODE_PRIVATE)
+            val isSliderShown = sharedPref.getBoolean("isSliderShown", false)
+
+            val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+
+            if (currentUser != null || isSliderShown) {
+                navController.navigate(R.id.action_global_taskFragment)
+            } else if( !isSliderShown) {
+                navController.navigate(R.id.action_global_sliderFragment)
+            }
+
         }, 1000)
+
+
     }
 }

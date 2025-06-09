@@ -13,11 +13,35 @@
             app:destination="@id/sliderFragment"
             app:popUpTo="@id/welcomeFragment"
             app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_global_sliderFragment"
+            app:destination="@id/sliderFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/welcomeFragment"
+            app:popUpToInclusive="true"/>
+        <action
+            android:id="@+id/action_global_taskFragment"
+            app:destination="@id/taskFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/welcomeFragment"
+            app:popUpToInclusive="true"/>
     </fragment>
 
     <fragment
         android:id="@+id/sliderFragment"
         android:name="com.ritika.dowinn.SliderFragment"
-        android:label="Details" />
+        android:label="Details">
+        <action
+            android:id="@+id/action_sliderFragment_to_taskFragment"
+            app:destination="@id/taskFragment"
+            app:popUpTo="@id/sliderFragment"
+            app:popUpToInclusive="true"
+            />
+    </fragment>
+    <fragment
+        android:id="@+id/taskFragment"
+        android:name="com.ritika.dowinn.TaskFragment"
+        android:label="fragment_task"
+        tools:layout="@layout/fragment_task" />
 
 </navigation>

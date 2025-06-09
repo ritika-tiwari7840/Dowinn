@@ -1,56 +1,58 @@
 package com.ritika.dowinn
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.divider.MaterialDivider
 import com.ritika.dowinn.adapter.WalkthroughAdapter
 import com.ritika.dowinn.api.dataclasses.WalkthroughItem
-import com.ritika.dowinn.databinding.ActivityMainBinding
 import com.ritika.dowinn.databinding.FragmentSliderBinding
 
 class SliderFragment : Fragment() {
+
     private var _binding: FragmentSliderBinding? = null
     private val binding get() = _binding!!
     private lateinit var dividerList: List<MaterialDivider>
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?,
-    ): View? {
+    ): View {
         _binding = FragmentSliderBinding.inflate(inflater, container, false)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         val walkthroughItems = listOf(
             WalkthroughItem(
                 R.drawable.slider_1,
                 "Smart Task Management",
                 "Organize your day effortlessly with a beautifully simple interface. Create, edit, and check off tasks with ease."
-            ), WalkthroughItem(
+            ),
+            WalkthroughItem(
                 R.drawable.slider_2,
                 "Focus & Productivity",
                 "Stay focused and boost productivity by breaking your work into manageable steps and setting clear goals."
-            ), WalkthroughItem(
+            ),
+            WalkthroughItem(
                 R.drawable.slider_3,
                 "Daily Habit Tracking",
                 "Track habits like workouts or morning routines to build consistency and stay motivated every day."
-            ), WalkthroughItem(
+            ),
+            WalkthroughItem(
                 R.drawable.slider_4,
                 "Make Progress Fun",
                 "Enjoy ticking off tasks, keep your streak alive, and get rewarded for staying consistent."
-            ), WalkthroughItem(
+            ),
+            WalkthroughItem(
                 R.drawable.slider_5,
                 "Visualize Your Productivity",
                 "Track your progress with clear insights and charts—see how consistent habits and completed tasks add up over time."
@@ -60,7 +62,7 @@ class SliderFragment : Fragment() {
         val adapter = WalkthroughAdapter(walkthroughItems)
         binding.viewPager.adapter = adapter
 
-        // Prepare the list of dividers
+        // Setup dividers
         dividerList = listOf(
             binding.materialDivider1,
             binding.materialDivider2,
@@ -68,28 +70,28 @@ class SliderFragment : Fragment() {
             binding.materialDivider4,
             binding.materialDivider5
         )
-
-        // Set initial active state
         updateDividers(0)
 
-        // Listen for page changes
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
                 updateDividers(position)
             }
         })
 
-        // Set up click listeners for buttons
+        // Skip button click
         binding.skip.setOnClickListener {
-            // Navigate to Main/Login Activity or last screen
+            markSliderAsShown()
+            findNavController().navigate(R.id.action_sliderFragment_to_taskFragment)
         }
 
+        // Continue button click
         binding.continueButton.setOnClickListener {
             val current = binding.viewPager.currentItem
             if (current < walkthroughItems.lastIndex) {
                 binding.viewPager.currentItem = current + 1
             } else {
-                // Last item - proceed to app
+                markSliderAsShown()
+                findNavController().navigate(R.id.action_sliderFragment_to_taskFragment)
             }
         }
     }
@@ -101,7 +103,18 @@ class SliderFragment : Fragment() {
             } else {
                 ContextCompat.getColor(requireContext(), R.color.dividerColor)
             }
-            divider.setDividerColor(color) // sets color for MaterialDivider
+            divider.setDividerColor(color)
         }
+    }
+
+    private fun markSliderAsShown() {
+        val sharedPref =
+            requireActivity().getSharedPreferences("onboarding", AppCompatActivity.MODE_PRIVATE)
+        sharedPref.edit().putBoolean("isSliderShown", true).apply()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
