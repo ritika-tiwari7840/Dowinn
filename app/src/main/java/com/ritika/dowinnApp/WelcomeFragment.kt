@@ -1,4 +1,4 @@
-package com.ritika.dowinn
+package com.ritika.dowinnApp
 
 import android.app.Activity
 import android.content.Intent
@@ -20,7 +20,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.ritika.dowinn.databinding.FragmentWelcomeBinding
+import com.ritika.dowinnApp.databinding.FragmentWelcomeBinding
 
 
 class WelcomeFragment : Fragment() {

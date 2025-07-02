@@ -1,24 +1,30 @@
-package com.ritika.dowinn
+package com.ritika.dowinnApp
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.divider.MaterialDivider
-import com.ritika.dowinn.adapter.WalkthroughAdapter
-import com.ritika.dowinn.api.dataclasses.WalkthroughItem
-import com.ritika.dowinn.databinding.FragmentSliderBinding
+import com.ritika.dowinnApp.adapter.WalkthroughAdapter
+import com.ritika.dowinnApp.api.dataclasses.WalkthroughItem
+import com.ritika.dowinnApp.databinding.FragmentSliderBinding
 
 class SliderFragment : Fragment() {
 
     private var _binding: FragmentSliderBinding? = null
     private val binding get() = _binding!!
     private lateinit var dividerList: List<MaterialDivider>
+    private lateinit var sessionManager: UserSessionManager
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // Initialize session manager
+        sessionManager = UserSessionManager.getInstance(requireContext())
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,6 +36,12 @@ class SliderFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // Check if user is signed in, if not redirect to login
+        if (!sessionManager.isUserSignedIn()) {
+            findNavController().navigate(R.id.action_sliderFragment_to_welcomeFragment)
+            return
+        }
 
         val walkthroughItems = listOf(
             WalkthroughItem(
@@ -80,8 +92,7 @@ class SliderFragment : Fragment() {
 
         // Skip button click
         binding.skip.setOnClickListener {
-            markSliderAsShown()
-            findNavController().navigate(R.id.action_sliderFragment_to_taskFragment)
+            completeOnboarding()
         }
 
         // Continue button click
@@ -90,8 +101,7 @@ class SliderFragment : Fragment() {
             if (current < walkthroughItems.lastIndex) {
                 binding.viewPager.currentItem = current + 1
             } else {
-                markSliderAsShown()
-                findNavController().navigate(R.id.action_sliderFragment_to_taskFragment)
+                completeOnboarding()
             }
         }
     }
@@ -107,10 +117,19 @@ class SliderFragment : Fragment() {
         }
     }
 
-    private fun markSliderAsShown() {
-        val sharedPref =
-            requireActivity().getSharedPreferences("onboarding", AppCompatActivity.MODE_PRIVATE)
-        sharedPref.edit().putBoolean("isSliderShown", true).apply()
+    private fun completeOnboarding() {
+        try {
+            // Mark onboarding as completed for the current user
+            sessionManager.markOnboardingCompleted()
+
+            // Navigate to main app
+            findNavController().navigate(R.id.action_sliderFragment_to_taskFragment)
+
+        } catch (e: Exception) {
+            // Handle error - maybe show a toast or try navigation anyway
+            android.util.Log.e("SliderFragment", "Error completing onboarding: ${e.message}")
+            findNavController().navigate(R.id.action_sliderFragment_to_taskFragment)
+        }
     }
 
     override fun onDestroyView() {

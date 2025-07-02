@@ -1,4 +1,4 @@
-package com.ritika.dowinn.api.dataclasses
+package com.ritika.dowinnApp.api.dataclasses
 
 data class WalkthroughItem(
     val imageResId: Int,

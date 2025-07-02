@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.ritika.dowinn"
+    namespace = "com.ritika.dowinnApp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.ritika.dowinn"
+        applicationId = "com.ritika.dowinnApp"
         minSdk = 24
         targetSdk = 34
         versionCode = 1

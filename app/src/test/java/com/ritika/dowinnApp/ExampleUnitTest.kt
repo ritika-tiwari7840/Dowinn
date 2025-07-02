@@ -1,4 +1,4 @@
-package com.ritika.dowinn
+package com.ritika.dowinnApp
 
 import org.junit.Test
 

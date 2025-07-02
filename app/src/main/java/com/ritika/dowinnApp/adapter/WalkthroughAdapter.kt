@@ -1,4 +1,4 @@
-package com.ritika.dowinn.adapter
+package com.ritika.dowinnApp.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,8 +6,8 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
-import com.ritika.dowinn.R
-import com.ritika.dowinn.api.dataclasses.WalkthroughItem
+import com.ritika.dowinnApp.R
+import com.ritika.dowinnApp.api.dataclasses.WalkthroughItem
 
 class WalkthroughAdapter(
     private val items: List<WalkthroughItem>,

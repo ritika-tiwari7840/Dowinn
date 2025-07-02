@@ -1,4 +1,4 @@
-package com.ritika.dowinn
+package com.ritika.dowinnApp
 
 import android.os.Bundle
 import android.os.Handler
@@ -12,11 +12,12 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.google.firebase.FirebaseApp
-import com.ritika.dowinn.databinding.ActivityMainBinding
+import com.ritika.dowinnApp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var binding: ActivityMainBinding
+    private lateinit var sessionManager: UserSessionManager
 
     private var isSplashDone = false
 
@@ -28,6 +29,9 @@ class MainActivity : AppCompatActivity() {
 
         // Initialize Firebase
         FirebaseApp.initializeApp(this)
+
+        // Initialize session manager
+        sessionManager = UserSessionManager.getInstance(this)
 
         // Window styling
         WindowCompat.setDecorFitsSystemWindows(window, true)
@@ -53,19 +57,34 @@ class MainActivity : AppCompatActivity() {
             // Initialize NavController
             navController = Navigation.findNavController(this, R.id.nav_host_fragment)
 
-            val sharedPref = getSharedPreferences("onboarding", MODE_PRIVATE)
-            val isSliderShown = sharedPref.getBoolean("isSliderShown", false)
-
-            val currentUser = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
-
-            if (currentUser != null || isSliderShown) {
-                navController.navigate(R.id.action_global_taskFragment)
-            } else if( !isSliderShown) {
-                navController.navigate(R.id.action_global_sliderFragment)
-            }
+            // Handle navigation based on user state
+            handleUserNavigation()
 
         }, 1000)
-
-
     }
+
+    private fun handleUserNavigation() {
+        when (sessionManager.getInitialDestination()) {
+            NavigationDestination.LOGIN -> {
+                // Navigate to login/signup screen
+                navController.navigate(R.id.welcomeFragment)
+            }
+            NavigationDestination.ONBOARDING -> {
+                // User is signed in but hasn't completed onboarding
+                navController.navigate(R.id.action_global_sliderFragment)
+            }
+            NavigationDestination.MAIN_APP -> {
+                // User is fully set up, go to main app
+                navController.navigate(R.id.action_global_taskFragment)
+            }
+
+        }
+    }
+    fun onOnboardingCompleted() {
+        sessionManager.markOnboardingCompleted()
+        // Navigate to next screen (profile setup or main app)
+        handleUserNavigation()
+    }
+
+
 }

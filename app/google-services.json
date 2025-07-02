@@ -1,41 +1,41 @@
 {
   "project_info": {
-    "project_number": "163320567250",
-    "project_id": "dowinn-ae6d6",
-    "storage_bucket": "dowinn-ae6d6.firebasestorage.app"
+    "project_number": "997614001503",
+    "project_id": "dowinn-5f30e",
+    "storage_bucket": "dowinn-5f30e.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:163320567250:android:977f3e5fc0406711c7a40b",
+        "mobilesdk_app_id": "1:997614001503:android:d254840dc48b286bffeaea",
         "android_client_info": {
-          "package_name": "com.ritika.dowinn"
+          "package_name": "com.ritika.dowinnApp"
         }
       },
       "oauth_client": [
         {
-          "client_id": "163320567250-g90722n1i40417n0mrjks9dol4ofnlmb.apps.googleusercontent.com",
+          "client_id": "997614001503-nmke3cvj7sgt77haf9umahb0ui2076sj.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.ritika.dowinn",
+            "package_name": "com.ritika.dowinnApp",
             "certificate_hash": "5e2a2eaa7e11b92cac218a72c6f8a7af6fbcdbc8"
           }
         },
         {
-          "client_id": "163320567250-4q2ue8nqdmj7ugs5do3e4u2ijelqoss7.apps.googleusercontent.com",
+          "client_id": "997614001503-uoi54jggf5h2bdru6gfbelkmdnlpi760.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDsb2I5M4xlln1MaqcZ0OoFVOr3_si785w"
+          "current_key": "AIzaSyD8Q2VI3BQa0fHXO0B7ACGdqVML4xgMg_Y"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "163320567250-4q2ue8nqdmj7ugs5do3e4u2ijelqoss7.apps.googleusercontent.com",
+              "client_id": "997614001503-uoi54jggf5h2bdru6gfbelkmdnlpi760.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

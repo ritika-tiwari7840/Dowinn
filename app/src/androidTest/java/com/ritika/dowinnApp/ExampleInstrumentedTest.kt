@@ -1,4 +1,4 @@
-package com.ritika.dowinn
+package com.ritika.dowinnApp
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

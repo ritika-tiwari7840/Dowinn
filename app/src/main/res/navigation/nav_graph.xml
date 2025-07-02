@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/welcomeFragment"
-        android:name="com.ritika.dowinn.WelcomeFragment"
+        android:name="com.ritika.dowinnApp.WelcomeFragment"
         android:label="Home">
         <action
             android:id="@+id/action_welcomeFragment_to_sliderFragment"
@@ -25,11 +25,12 @@
             app:launchSingleTop="true"
             app:popUpTo="@id/welcomeFragment"
             app:popUpToInclusive="true"/>
+
     </fragment>
 
     <fragment
         android:id="@+id/sliderFragment"
-        android:name="com.ritika.dowinn.SliderFragment"
+        android:name="com.ritika.dowinnApp.SliderFragment"
         android:label="Details">
         <action
             android:id="@+id/action_sliderFragment_to_taskFragment"
@@ -37,11 +38,21 @@
             app:popUpTo="@id/sliderFragment"
             app:popUpToInclusive="true"
             />
+        <action
+            android:id="@+id/action_sliderFragment_to_welcomeFragment"
+            app:destination="@id/welcomeFragment" />
     </fragment>
     <fragment
         android:id="@+id/taskFragment"
-        android:name="com.ritika.dowinn.TaskFragment"
+        android:name="com.ritika.dowinnApp.TaskFragment"
         android:label="fragment_task"
-        tools:layout="@layout/fragment_task" />
+        tools:layout="@layout/fragment_task" >
+        <action
+            android:id="@+id/action_taskFragment_to_welcomeFragment"
+            app:destination="@id/welcomeFragment"
+            app:popUpTo="@id/taskFragment"
+            app:popUpToInclusive="true" />
+
+    </fragment>
 
 </navigation>
