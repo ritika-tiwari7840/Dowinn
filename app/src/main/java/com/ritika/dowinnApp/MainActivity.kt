@@ -3,6 +3,7 @@ package com.ritika.dowinnApp
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -44,6 +45,10 @@ class MainActivity : AppCompatActivity() {
             binding = ActivityMainBinding.inflate(layoutInflater)
             setContentView(binding.root)
 
+            // Hide NavHostFragment initially
+            val navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment)
+            navHostFragment?.view?.visibility = View.GONE
+
             // Apply window insets for padding
             ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
                 val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
@@ -60,31 +65,39 @@ class MainActivity : AppCompatActivity() {
             // Handle navigation based on user state
             handleUserNavigation()
 
-        }, 1000)
+            // Show NavHostFragment after navigation is complete
+            Handler(Looper.getMainLooper()).post {
+                navHostFragment?.view?.visibility = View.VISIBLE
+            }
+
+        }, 100)
     }
 
     private fun handleUserNavigation() {
         when (sessionManager.getInitialDestination()) {
             NavigationDestination.LOGIN -> {
-                // Navigate to login/signup screen
-                navController.navigate(R.id.welcomeFragment)
-            }
-            NavigationDestination.ONBOARDING -> {
-                // User is signed in but hasn't completed onboarding
-                navController.navigate(R.id.action_global_sliderFragment)
-            }
-            NavigationDestination.MAIN_APP -> {
-                // User is fully set up, go to main app
-                navController.navigate(R.id.action_global_taskFragment)
+                // Already at welcomeFragment (start destination)
             }
 
+            NavigationDestination.ONBOARDING -> {
+                navController.navigate(R.id.action_global_sliderFragment)
+            }
+
+            NavigationDestination.MAIN_APP -> {
+                if (!sessionManager.isOnboardingCompleted()) {
+                    // Block navigation until onboarding is complete
+                    navController.navigate(R.id.action_global_sliderFragment)
+                } else {
+                    navController.navigate(R.id.action_global_taskFragment)
+                }
+            }
         }
     }
+
+
     fun onOnboardingCompleted() {
         sessionManager.markOnboardingCompleted()
         // Navigate to next screen (profile setup or main app)
         handleUserNavigation()
     }
-
-
 }

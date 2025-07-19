@@ -22,7 +22,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.ritika.dowinnApp.databinding.FragmentWelcomeBinding
 
-
 class WelcomeFragment : Fragment() {
     private var _binding: FragmentWelcomeBinding? = null
     private val binding get() = _binding!!
@@ -92,13 +91,15 @@ class WelcomeFragment : Fragment() {
     private fun handleSignInResult(task: Task<GoogleSignInAccount>) {
         try {
             val account = task.getResult(ApiException::class.java)
-            Log.d("GoogleAuth", "Google Sign-In successful: ${account.email}")
+            Log.d("GoogleAuth", "Google Sign-In successful: ${account.email}" +
+                    ",${account.idToken!!}")
             firebaseAuthWithGoogle(account.idToken!!)
         } catch (e: ApiException) {
             Log.w("GoogleAuth", "Google sign in failed", e)
             showProgress(false)
             Toast.makeText(context, "Google sign in failed", Toast.LENGTH_SHORT).show()
         }
+
     }
 
     private fun firebaseAuthWithGoogle(idToken: String) {
@@ -112,6 +113,18 @@ class WelcomeFragment : Fragment() {
                     Toast.makeText(context, "Welcome ${user?.displayName}!", Toast.LENGTH_SHORT)
                         .show()
                     Log.d("GoogleAuth", "User email: ${user}")
+                    firebaseAuth?.currentUser?.getIdToken(true)
+                        ?.addOnCompleteListener { tokenTask ->
+                            if (tokenTask.isSuccessful) {
+                                // Access the actual Firebase ID Token
+                                val idToken = tokenTask.result?.token
+                                // Log the Firebase ID Token (now you should see the actual token string)
+                                Log.d("GoogleAuth", "Firebase ID Token here : $idToken")
+                            } else {
+                                Log.e("Firebase", "Failed to get ID token", tokenTask.exception)
+                                Toast.makeText(context, "Failed to get ID token", Toast.LENGTH_SHORT).show()
+                            }
+                        }
                     findNavController().navigate(R.id.action_welcomeFragment_to_sliderFragment)
                 } else {
                     Log.w("GoogleAuth", "Authentication failed", task.exception)

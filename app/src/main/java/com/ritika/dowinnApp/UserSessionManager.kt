@@ -2,6 +2,7 @@ package com.ritika.dowinnApp
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
@@ -14,6 +15,7 @@ class UserSessionManager(private val context: Context) {
 
     companion object {
         private const val ONBOARDING_COMPLETED = "onboarding_completed"
+        private const val TAG = "UserSessionManager"
 
         @Volatile
         private var INSTANCE: UserSessionManager? = null
@@ -36,17 +38,31 @@ class UserSessionManager(private val context: Context) {
 
     // Onboarding related methods
     fun isOnboardingCompleted(): Boolean {
-        return getUserSpecificPrefs()?.getBoolean(ONBOARDING_COMPLETED, false) ?: false
+        val completed = getUserSpecificPrefs()?.getBoolean(ONBOARDING_COMPLETED, false) ?: false
+        Log.d(TAG, "Onboarding completed: $completed for user: ${getCurrentUserId()}")
+        return completed
     }
 
     fun markOnboardingCompleted() {
         getUserSpecificPrefs()?.edit()
             ?.putBoolean(ONBOARDING_COMPLETED, true)
-            ?.apply()
+            ?.commit() // Use commit() instead of apply() for immediate persistence
+        Log.d(TAG, "Onboarding marked as completed for user: ${getCurrentUserId()}")
+    }
+
+    private fun markOnboardingIncomplete() {
+        getUserSpecificPrefs()?.edit()
+            ?.putBoolean(ONBOARDING_COMPLETED, false)
+            ?.commit()
+        Log.d(TAG, "Onboarding marked as incomplete for user: ${getCurrentUserId()}")
     }
 
     // Authentication state checks
-    fun isUserSignedIn(): Boolean = getCurrentUser() != null
+    fun isUserSignedIn(): Boolean {
+        val signedIn = getCurrentUser() != null
+        Log.d(TAG, "User signed in: $signedIn")
+        return signedIn
+    }
 
     fun getCurrentUserId(): String? = getCurrentUser()?.uid
 
@@ -54,15 +70,23 @@ class UserSessionManager(private val context: Context) {
 
     // Navigation decision helper
     fun getInitialDestination(): NavigationDestination {
-        return when {
+        val destination = when {
             !isUserSignedIn() -> NavigationDestination.LOGIN
             !isOnboardingCompleted() -> NavigationDestination.ONBOARDING
             else -> NavigationDestination.MAIN_APP
         }
+        Log.d(TAG, "Initial destination: $destination")
+        return destination
     }
 
-    // Clear user data on sign out
+    // Clear user data on sign out - with onboarding reset
     fun clearUserSession() {
+        val currentUserId = getCurrentUserId()
+        Log.d(TAG, "Clearing session for user: $currentUserId")
+
+        // Clear user-specific onboarding data before signing out
+        clearCurrentUserOnboardingData()
+
         // Sign out from Firebase Auth
         auth.signOut()
 
@@ -70,16 +94,30 @@ class UserSessionManager(private val context: Context) {
         val googleSignInClient = GoogleSignIn.getClient(
             context,
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(context.getString(R.string.default_web_client_id)) // Make sure you have this in strings.xml
+                .requestIdToken(context.getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build()
         )
 
-        googleSignInClient.signOut()
+        googleSignInClient.signOut().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d(TAG, "Google sign out successful")
+            } else {
+                Log.e(TAG, "Google sign out failed", task.exception)
+            }
+        }
+
+        Log.d(TAG, "User session cleared successfully")
     }
 
     // Alternative method to revoke access completely (removes app from user's Google account)
     fun revokeGoogleAccess() {
+        val currentUserId = getCurrentUserId()
+        Log.d(TAG, "Revoking Google access for user: $currentUserId")
+
+        // Clear user-specific onboarding data before revoking access
+        clearCurrentUserOnboardingData()
+
         auth.signOut()
 
         val googleSignInClient = GoogleSignIn.getClient(
@@ -90,15 +128,54 @@ class UserSessionManager(private val context: Context) {
                 .build()
         )
 
-        googleSignInClient.revokeAccess()
+        googleSignInClient.revokeAccess().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Log.d(TAG, "Google access revoked successfully")
+            } else {
+                Log.e(TAG, "Failed to revoke Google access", task.exception)
+            }
+        }
+    }
+
+    // Clear current user's onboarding data specifically
+    private fun clearCurrentUserOnboardingData() {
+        getCurrentUser()?.let { user ->
+            val userPrefs = context.getSharedPreferences("user_${user.uid}", Context.MODE_PRIVATE)
+            userPrefs.edit()
+                .putBoolean(ONBOARDING_COMPLETED, false)
+                .commit()
+            Log.d(TAG, "Onboarding data cleared for user: ${user.uid}")
+        }
     }
 
     // Clear all user preferences (useful for troubleshooting)
     fun clearAllUserData() {
         getCurrentUser()?.let { user ->
             val userPrefs = context.getSharedPreferences("user_${user.uid}", Context.MODE_PRIVATE)
-            userPrefs.edit().clear().apply()
+            userPrefs.edit().clear().commit()
+            Log.d(TAG, "All user data cleared for user: ${user.uid}")
         }
+    }
+
+    // Method to manually reset onboarding for current user
+    fun resetOnboardingForCurrentUser() {
+        if (isUserSignedIn()) {
+            markOnboardingIncomplete()
+            Log.d(TAG, "Onboarding reset for current user")
+        } else {
+            Log.w(TAG, "Cannot reset onboarding - no user signed in")
+        }
+    }
+
+    // Method to get user session info for debugging
+    fun getSessionInfo(): String {
+        return """
+            User ID: ${getCurrentUserId() ?: "None"}
+            Email: ${getCurrentUserEmail() ?: "None"}
+            Signed In: ${isUserSignedIn()}
+            Onboarding Completed: ${isOnboardingCompleted()}
+            Initial Destination: ${getInitialDestination()}
+        """.trimIndent()
     }
 }
 

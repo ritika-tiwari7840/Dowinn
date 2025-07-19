@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/nav_tasks"
+        android:icon="@drawable/tasks"
+        android:title="Tasks" />
+    <item
+        android:id="@+id/nav_category"
+        android:icon="@drawable/category"
+        android:title="Tasks Categories" />
+    <item
+        android:id="@+id/nav_Appearance"
+        android:icon="@drawable/baseline_settings_24"
+        android:title="Appearance Settings" />
+
+
+    <item
+        android:id="@+id/nav_logout"
+        android:icon="@drawable/logout"
+        android:title="Logout" />
+
+</menu>

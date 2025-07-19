@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name">Dowinn</string>
     <string name="default_web_client_id">997614001503-uoi54jggf5h2bdru6gfbelkmdnlpi760.apps.googleusercontent.com</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="no_tasks_message">There are no task yet.</string>
+    <string name="no_tasks_message1">Click + to create your task.</string>
 </resources>
