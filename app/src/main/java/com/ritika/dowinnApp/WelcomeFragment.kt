@@ -68,7 +68,9 @@ class WelcomeFragment : Fragment() {
 
         // Configure Google Sign-In
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(getString(R.string.default_web_client_id)).requestEmail().build()
+            .requestIdToken(BuildConfig.DEFAULT_WEB_CLIENT_ID)
+            .requestEmail()
+            .build()
 
         googleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
 
