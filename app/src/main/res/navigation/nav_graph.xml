@@ -9,7 +9,13 @@
         android:id="@+id/welcomeFragment"
         android:name="com.ritika.dowinnApp.WelcomeFragment"
         android:label="Home">
-
+        <action
+            android:id="@+id/action_global_welcomeFragment"
+            app:destination="@id/welcomeFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left" />
         <action
             android:id="@+id/action_welcomeFragment_to_sliderFragment"
             app:destination="@id/sliderFragment"
@@ -23,9 +29,9 @@
         <action
             android:id="@+id/action_global_sliderFragment"
             app:destination="@id/sliderFragment"
-            app:launchSingleTop="true"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
+            app:launchSingleTop="true"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right"
             app:popUpTo="@id/welcomeFragment"
@@ -34,9 +40,9 @@
         <action
             android:id="@+id/action_global_taskFragment"
             app:destination="@id/taskFragment"
-            app:launchSingleTop="true"
             app:enterAnim="@anim/slide_in_right"
             app:exitAnim="@anim/slide_out_left"
+            app:launchSingleTop="true"
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right"
             app:popUpTo="@id/welcomeFragment"
@@ -72,7 +78,13 @@
         android:name="com.ritika.dowinnApp.TaskFragment"
         android:label="fragment_task"
         tools:layout="@layout/fragment_task">
-
+        <action
+            android:id="@+id/action_global_taskFragment"
+            app:destination="@id/taskFragment"
+            app:enterAnim="@anim/slide_in_left"
+            app:exitAnim="@anim/slide_out_right"
+            app:popEnterAnim="@anim/slide_in_right"
+            app:popExitAnim="@anim/slide_out_left" />
         <action
             android:id="@+id/action_taskFragment_to_welcomeFragment"
             app:destination="@id/welcomeFragment"

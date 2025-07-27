@@ -91,7 +91,12 @@ dependencies {
     implementation(libs.material.v1110)
     implementation(libs.androidx.navigation.fragment.ktx.v274)
     implementation(libs.androidx.navigation.ui.ktx.v274)
-}
 
+        implementation(libs.androidx.constraintlayout.v221)
+        implementation(libs.material.v1120)
+        implementation("androidx.fragment:fragment-ktx:1.8.8")
+    implementation("com.google.android.material:material:1.11.0")
+
+}
 // 🔹 Apply Google Services plugin
 apply(plugin = "com.google.gms.google-services")

@@ -94,7 +94,7 @@ class UserSessionManager(private val context: Context) {
         val googleSignInClient = GoogleSignIn.getClient(
             context,
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(context.getString(R.string.default_web_client_id))
+                .requestIdToken(BuildConfig.DEFAULT_WEB_CLIENT_ID)
                 .requestEmail()
                 .build()
         )
@@ -123,7 +123,7 @@ class UserSessionManager(private val context: Context) {
         val googleSignInClient = GoogleSignIn.getClient(
             context,
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(context.getString(R.string.default_web_client_id))
+                .requestIdToken(BuildConfig.DEFAULT_WEB_CLIENT_ID)
                 .requestEmail()
                 .build()
         )

@@ -1,6 +1,8 @@
 [versions]
+constraintlayout = "2.2.1"
 kotlin = "2.1.0"
 compileSdk = "35"
+materialVersion = "1.12.0"
 targetSdk = "34"
 minSdk = "24"
 material = "1.11.0"
@@ -14,9 +16,11 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 google-services = { id = "com.google.gms.google-services", version = "4.4.1" }
 
 [libraries]
+androidx-constraintlayout-v221 = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayout" }
 androidx-core-ktx = { module = "androidx.core:core-ktx", version = "1.13.1" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version = "1.6.1" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+material-v1120 = { module = "com.google.android.material:material", version.ref = "materialVersion" }
 material-v190 = { module = "com.google.android.material:material", version = "1.9.0" }
 material-v1110 = { module = "com.google.android.material:material", version = "1.11.0" }
 androidx-activity = { module = "androidx.activity:activity-ktx", version = "1.8.2" }

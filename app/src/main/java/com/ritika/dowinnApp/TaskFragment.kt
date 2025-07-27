@@ -16,6 +16,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import com.bumptech.glide.Glide
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.ritika.dowinnApp.databinding.FragmentTaskBinding
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -47,6 +48,9 @@ class TaskFragment : Fragment() {
         binding.topAppBar.setNavigationOnClickListener {
             binding.drawerLayout.openDrawer(GravityCompat.START)
         }
+        binding.fab.setOnClickListener {
+            AddTaskFragment().show(parentFragmentManager, "AddTaskFragment")
+        }
 
         // Handle nav drawer menu click
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
@@ -67,14 +71,14 @@ class TaskFragment : Fragment() {
         val navView = view.findViewById<NavigationView>(R.id.navigationView)
         val headerView = navView.getHeaderView(0)
 
-        val userName = headerView.findViewById<TextView>(R.id.userName)
-        val greeting = headerView.findViewById<TextView>(R.id.userGreeting)
+        val userName = headerView.findViewById<TextView>(R.id.user_name)
+        val email = headerView.findViewById<TextView>(R.id.user_email)
         val profileImage = headerView.findViewById<ImageView>(R.id.profileImage)
 
         val user = FirebaseAuth.getInstance().currentUser
 
-        greeting.text = "Hello 👋"
-        userName.text = (user?.displayName + " !") ?: "Guest !!"
+        userName.text = user?.displayName ?: "No name available"
+        email.text = user?.email ?: "No email available"
 
         Glide.with(this)
             .load(user?.photoUrl)  // Use Firebase user photo

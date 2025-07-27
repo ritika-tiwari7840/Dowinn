@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:overScrollMode="ifContentScrolls"
+    android:clipToPadding="false">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        tools:context=".AddTaskFragment">
+
+        <!-- Divider -->
+        <com.google.android.material.divider.MaterialDivider
+            android:id="@+id/divider"
+            android:layout_width="100dp"
+            android:layout_height="2dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="16dp"
+            style="@style/divider_style"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/taskNameLayout" />
+
+        <!-- Task Name -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/taskNameLayout"
+            style="@style/MyCombinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:hint="Enter Task Name"
+            android:layout_marginTop="10dp"
+            app:layout_constraintTop_toBottomOf="@id/divider"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etTaskName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:textAppearance="@style/MyCombinedStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Description -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/descriptionLayout"
+            style="@style/MyCombinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Enter Description"
+            app:layout_constraintTop_toBottomOf="@id/taskNameLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textMultiLine"
+                android:textAppearance="@style/MyCombinedStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Repeat Label -->
+        <TextView
+            android:id="@+id/repeatLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Repeat"
+            android:textAppearance="@style/MyCombinedStyle"
+            app:layout_constraintTop_toBottomOf="@id/descriptionLayout"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Repeat Options -->
+        <RadioGroup
+            android:id="@+id/repeatRadioGroup"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/repeatLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <RadioButton
+                android:id="@+id/rbDaily"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Daily"
+                android:textColor="@color/borderColor"
+                android:fontFamily="@font/regular"
+                android:checked="true" />
+
+            <RadioButton
+                android:id="@+id/rbWeekly"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Weekly"
+                android:textColor="@color/borderColor"
+                android:fontFamily="@font/regular"/>
+
+            <RadioButton
+                android:id="@+id/rbMonthly"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Monthly"
+                android:textColor="@color/borderColor"
+                android:fontFamily="@font/regular"/>
+
+            <RadioButton
+                android:id="@+id/rbYearly"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:text="Yearly"
+                android:textColor="@color/borderColor"
+                android:fontFamily="@font/regular"/>
+        </RadioGroup>
+
+        <!-- Date Time -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/dateTimeLayout"
+            style="@style/MyCombinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Select Date and Time"
+            app:layout_constraintTop_toBottomOf="@id/repeatRadioGroup"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etDateTime"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:clickable="true"
+                android:inputType="datetime"
+                android:textAppearance="@style/MyCombinedStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Priority -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/priorityLayout"
+            style="@style/MyCombinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Select Priority"
+            app:endIconMode="dropdown_menu"
+            app:layout_constraintTop_toBottomOf="@id/dateTimeLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <AutoCompleteTextView
+                android:id="@+id/etPriority"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:inputType="none"
+                android:padding="15dp"
+                android:popupTheme="@style/Widget.App.Dropdown"
+                android:textAppearance="@style/MyCombinedStyle"
+                android:fontFamily="@font/regular" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Attachments -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/attachmentLayout"
+            style="@style/MyCombinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:hint="Attachments (Click to add)"
+            app:layout_constraintTop_toBottomOf="@id/priorityLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etAttachments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:clickable="true"
+                android:inputType="none"
+                android:textAppearance="@style/MyCombinedStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Collection Dropdown -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/collectionDropdownLayout"
+            style="@style/MyCombinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="Select Collection"
+            app:endIconMode="dropdown_menu"
+            app:layout_constraintTop_toBottomOf="@id/attachmentLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <AutoCompleteTextView
+                android:id="@+id/collectionDropdown"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:focusable="false"
+                android:inputType="none"
+                android:padding="15dp"
+                android:textColor="@color/white"
+                android:popupTheme="@style/Widget.App.Dropdown"
+                android:textAppearance="@style/MyCombinedStyle" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Add Task Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAddTask"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:text="Add Task"
+            android:textSize="16sp"
+            android:padding="10dp"
+            style="@style/continue_button"
+            app:layout_constraintTop_toBottomOf="@id/collectionDropdownLayout"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintVertical_bias="0.0" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>
