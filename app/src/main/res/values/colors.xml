@@ -11,5 +11,6 @@
     <color name="divider_selected">#FFFFFF</color>
     <color name="black_overlay">#80000000</color>
     <color name="drawer_color">#121212</color>
+    <color name="delete">#E22727</color>
 
 </resources>

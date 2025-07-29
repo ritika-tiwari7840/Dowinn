@@ -43,7 +43,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            app:layout_constraintGuide_percent="0.8" />
+            app:layout_constraintGuide_percent="0.9" />
 
 
         <!-- Floating Action Button -->
@@ -61,6 +61,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:tooltipText="Add Task"
         app:useCompatPadding="true" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="16dp"
+            android:src="@drawable/search_buttonsvg"
+            app:tint="@color/colorPrimary"
+            app:backgroundTint="@color/colorPrimaryContainer"
+            app:fabSize="normal"
+            app:maxImageSize="55dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/fab"
+            app:tooltipText=" Search Task"
+            app:useCompatPadding="true" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
