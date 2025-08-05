@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryContainer"
     android:padding="16dp"
-    tools:context=".ListFragment">
+    tools:context=".fragment.ListFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewList"
@@ -27,6 +27,7 @@
         android:contentDescription="@string/app_name"
         android:src="@drawable/no_task_yet"
         app:layout_constraintBottom_toTopOf="@+id/emptyStateText"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -44,6 +45,7 @@
         android:textColor="@color/colorOnPrimary"
         android:textSize="16sp"
         android:layout_marginTop="30dp"
+        android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/emptyStateText2"
@@ -61,6 +63,7 @@
         android:textAlignment="center"
         android:textColor="@color/colorOnPrimary"
         android:textSize="16sp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/emptyStateText"
         app:layout_constraintStart_toStartOf="parent"

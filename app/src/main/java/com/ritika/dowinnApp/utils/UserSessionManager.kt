@@ -1,4 +1,4 @@
-package com.ritika.dowinnApp
+package com.ritika.dowinnApp.utils
 
 import android.content.Context
 import android.content.SharedPreferences
@@ -7,7 +7,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.ritika.dowinnApp.R
+import com.ritika.dowinnApp.BuildConfig
 
 class UserSessionManager(private val context: Context) {
 

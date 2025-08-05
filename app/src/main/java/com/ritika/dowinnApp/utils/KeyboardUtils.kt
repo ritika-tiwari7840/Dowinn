@@ -1,4 +1,4 @@
-package com.ritika.dowinnApp
+package com.ritika.dowinnApp.utils
 
 import android.os.Parcel
 import android.os.Parcelable

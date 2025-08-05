@@ -1,17 +1,17 @@
-package com.ritika.dowinnApp
+package com.ritika.dowinnApp.fragment
 
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.navigation.fragment.findNavController
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -20,6 +20,8 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.tasks.Task
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.ritika.dowinnApp.BuildConfig
+import com.ritika.dowinnApp.R
 import com.ritika.dowinnApp.databinding.FragmentWelcomeBinding
 
 class WelcomeFragment : Fragment() {
@@ -93,8 +95,10 @@ class WelcomeFragment : Fragment() {
     private fun handleSignInResult(task: Task<GoogleSignInAccount>) {
         try {
             val account = task.getResult(ApiException::class.java)
-            Log.d("GoogleAuth", "Google Sign-In successful: ${account.email}" +
-                    ",${account.idToken!!}")
+            Log.d(
+                "GoogleAuth", "Google Sign-In successful: ${account.email}" +
+                        ",${account.idToken!!}"
+            )
             firebaseAuthWithGoogle(account.idToken!!)
         } catch (e: ApiException) {
             Log.w("GoogleAuth", "Google sign in failed", e)
@@ -124,7 +128,11 @@ class WelcomeFragment : Fragment() {
                                 Log.d("GoogleAuth", "Firebase ID Token here : $idToken")
                             } else {
                                 Log.e("Firebase", "Failed to get ID token", tokenTask.exception)
-                                Toast.makeText(context, "Failed to get ID token", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    context,
+                                    "Failed to get ID token",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         }
                     findNavController().navigate(R.id.action_welcomeFragment_to_sliderFragment)

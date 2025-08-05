@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorPrimaryContainer"
-    tools:context=".SliderFragment">
+    tools:context=".fragment.SliderFragment">
 
     <com.google.android.material.divider.MaterialDivider
         android:id="@+id/materialDivider1"

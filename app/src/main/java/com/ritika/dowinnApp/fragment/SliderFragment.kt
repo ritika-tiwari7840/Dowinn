@@ -1,4 +1,4 @@
-package com.ritika.dowinnApp
+package com.ritika.dowinnApp.fragment
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.divider.MaterialDivider
+import com.ritika.dowinnApp.R
+import com.ritika.dowinnApp.utils.UserSessionManager
 import com.ritika.dowinnApp.adapter.WalkthroughAdapter
 import com.ritika.dowinnApp.api.dataclasses.WalkthroughItem
 import com.ritika.dowinnApp.databinding.FragmentSliderBinding

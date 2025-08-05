@@ -1,25 +1,25 @@
-package com.ritika.dowinnApp
+package com.ritika.dowinnApp.fragment
 
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.navigation.fragment.findNavController
-import android.view.Gravity
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.ritika.dowinnApp.databinding.FragmentTaskBinding
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
+import com.ritika.dowinnApp.R
+import com.ritika.dowinnApp.utils.UserSessionManager
+import com.ritika.dowinnApp.databinding.FragmentTaskBinding
 
 class TaskFragment : Fragment() {
     private var _binding: FragmentTaskBinding? = null
