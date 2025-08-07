@@ -48,9 +48,10 @@ class TaskFragment : Fragment() {
         binding.topAppBar.setNavigationOnClickListener {
             binding.drawerLayout.openDrawer(GravityCompat.START)
         }
-        binding.fab.setOnClickListener {
+        binding.fab.setThrottleClickListener {
             AddTaskFragment().show(parentFragmentManager, "AddTaskFragment")
         }
+
 
         // Handle nav drawer menu click
         binding.navigationView.setNavigationItemSelectedListener { menuItem ->
@@ -58,6 +59,7 @@ class TaskFragment : Fragment() {
                 R.id.nav_tasks -> {
                     Toast.makeText(context, "Home clicked", Toast.LENGTH_SHORT).show()
                 }
+
                 R.id.nav_logout -> {
                     signOutUser()
                 }
@@ -80,12 +82,21 @@ class TaskFragment : Fragment() {
         userName.text = user?.displayName ?: "No name available"
         email.text = user?.email ?: "No email available"
 
-        Glide.with(this)
-            .load(user?.photoUrl)  // Use Firebase user photo
+        Glide.with(this).load(user?.photoUrl)  // Use Firebase user photo
             .placeholder(R.drawable.circle_background)
-            .error(R.drawable.baseline_supervised_user_circle_24)
-            .circleCrop()
-            .into(profileImage)
+            .error(R.drawable.baseline_supervised_user_circle_24).circleCrop().into(profileImage)
+    }
+
+    private var lastClickTimeFab = 0L
+
+    fun View.setThrottleClickListener(interval: Long = 1000L, onClick: (View) -> Unit) {
+        setOnClickListener {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastClickTimeFab >= interval) {
+                lastClickTimeFab = currentTime
+                onClick(it)
+            }
+        }
     }
 
     private fun signOutUser() {

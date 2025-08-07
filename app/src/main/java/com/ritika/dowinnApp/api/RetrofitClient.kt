@@ -1,5 +1,6 @@
 package com.ritika.dowinnApp.api
 
+import com.ritika.dowinnApp.BuildConfig
 import com.ritika.dowinnApp.utils.FirebaseAuthInterceptor
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
@@ -7,7 +8,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
-    private const val BASE_URL = "https://todo-api-wq1o.onrender.com/api/"
+    private const val BASE_URL = BuildConfig.BASE_URL
+
     private val okHttpClient = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS) // Increase these values
         .readTimeout(30, TimeUnit.SECONDS)

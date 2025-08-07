@@ -53,8 +53,9 @@ class ListFragment : Fragment() {
     }
 
     private fun observeTasks() {
-        // ✅ Observes the LiveData in ViewModel and updates adapter
         taskViewModel.tasks.observe(viewLifecycleOwner) { updatedTasks ->
+            taskList.clear()
+            taskList.addAll(updatedTasks)
             listAdapter.updateData(updatedTasks)
             checkEmptyState()
         }
@@ -71,7 +72,7 @@ class ListFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        listAdapter = ListAdapter(taskList) { position ->
+        listAdapter = ListAdapter { position ->
             showDeleteConfirmationDialog(position)
         }
 
@@ -81,7 +82,11 @@ class ListFragment : Fragment() {
         }
 
         swipeToDeleteCallback = SwipeToDeleteCallback(requireContext()) { position ->
-            showDeleteConfirmationDialog(position)
+            if (listAdapter.isTaskItem(position)) {
+                showDeleteConfirmationDialog(position)
+            } else {
+                listAdapter.notifyItemChanged(position)
+            }
         }
 
         ItemTouchHelper(swipeToDeleteCallback).attachToRecyclerView(binding.recyclerViewList)
@@ -115,7 +120,7 @@ class ListFragment : Fragment() {
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     val tasks = apiResponse?.payload ?: emptyList()
-
+                    Log.d("ListFragment", "loadTasksFromApi: $tasks")
                     taskList.clear()
                     taskList.addAll(tasks)
                     listAdapter.updateData(tasks)
@@ -138,20 +143,42 @@ class ListFragment : Fragment() {
         }
     }
 
-    // ✅ Add a new task to the list and update UI
     fun addTask(task: Task) {
-        taskList.add(0, task) // Add to top of the list
+        taskList.add(0, task)
         listAdapter.updateData(taskList)
         checkEmptyState()
         binding.recyclerViewList.scrollToPosition(0)
     }
 
     private fun showDeleteConfirmationDialog(position: Int) {
+        val taskId = listAdapter.getTaskAt(position)?.id ?: return
+
         AlertDialog.Builder(requireContext())
             .setTitle("Delete Task")
             .setMessage("Are you sure you want to delete this task?")
             .setPositiveButton("Delete") { dialog, _ ->
-                listAdapter.deleteItem(position)
+                taskViewModel.deleteTask(taskId.toInt())
+
+                taskViewModel.deleteResult.observe(viewLifecycleOwner) { result ->
+                    result.onSuccess { message ->
+                        listAdapter.deleteItem(position)
+                        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                    }
+                    result.onFailure { error ->
+                        Log.e("ListFragment", "Error deleting task", error)
+                        Toast.makeText(
+                            requireContext(),
+                            "Error: ${error.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        val viewHolder =
+                            binding.recyclerViewList.findViewHolderForAdapterPosition(position)
+                        viewHolder?.itemView?.findViewById<View>(R.id.foregroundCard)
+                            ?.animate()?.translationX(0f)?.setDuration(200)?.start()
+                        swipeToDeleteCallback.resetSwipedItem(binding.recyclerViewList)
+                    }
+                }
+
                 dialog.dismiss()
             }
             .setNegativeButton("Cancel") { dialog, _ ->
@@ -165,7 +192,7 @@ class ListFragment : Fragment() {
     }
 
     private fun checkEmptyState() {
-        val isEmpty = taskList.isEmpty()
+        val isEmpty = listAdapter.itemCount == 0
         binding.recyclerViewList.visibility = if (isEmpty) View.GONE else View.VISIBLE
         binding.imageView2.visibility = if (isEmpty) View.VISIBLE else View.GONE
         binding.emptyStateText.visibility = if (isEmpty) View.VISIBLE else View.GONE

@@ -1,5 +1,6 @@
 package com.ritika.dowinnApp.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +12,8 @@ import java.io.File
 class TaskViewModel : ViewModel() {
     val repository = TaskRepository()
     val tasks = MutableLiveData<List<Task>>()
+    private val _deleteResult = MutableLiveData<Result<String>>()
+    val deleteResult: LiveData<Result<String>> = _deleteResult
 
     fun loadTasks() {
         viewModelScope.launch {
@@ -22,16 +25,24 @@ class TaskViewModel : ViewModel() {
     fun createNewTask(
         title: String,
         description: String,
+        completed:String,
         category: String,
         priority: String,
-        dueDate: String,
-        attachment: File? = null
+        due_date: String,
+        attachment: File? = null,
     ) {
         viewModelScope.launch {
-            repository.createTask(title, description, category, priority, dueDate, attachment)
+            repository.createTask(title, description,completed, category, priority, due_date, attachment)
             loadTasks() // updates LiveData, ListFragment will auto-update
         }
     }
 
 
+    fun deleteTask(id: Int) {
+        viewModelScope.launch {
+            val result = repository.deleteTask(id)
+            _deleteResult.postValue(result)
+        }
+    }
 }
+

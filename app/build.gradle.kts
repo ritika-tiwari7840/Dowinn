@@ -14,6 +14,7 @@ val localProperties = Properties().apply {
     }
 }
 val webClientId = localProperties.getProperty("default_web_client_id") ?: ""
+val BASE_URL=localProperties.getProperty("BASE_URL")?:""
 
 android {
     namespace = "com.ritika.dowinnApp"
@@ -30,6 +31,8 @@ android {
 
         // 🔹 Inject into BuildConfig
         buildConfigField("String", "DEFAULT_WEB_CLIENT_ID", "\"$webClientId\"")
+        buildConfigField("String", "BASE_URL", "\"$BASE_URL\"")
+
     }
 
     buildTypes {

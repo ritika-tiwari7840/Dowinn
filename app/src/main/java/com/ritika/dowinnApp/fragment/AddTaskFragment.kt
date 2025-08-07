@@ -6,7 +6,6 @@ import android.app.ProgressDialog
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.net.Uri
-import android.net.http.HttpException
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.util.Log
@@ -20,24 +19,13 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.gson.Gson
-import com.ritika.dowinnApp.utils.KeyboardUtils
 import com.ritika.dowinnApp.R
-import com.ritika.dowinnApp.api.RetrofitClient.apiService
-import com.ritika.dowinnApp.api.dataclasses.Task
 import com.ritika.dowinnApp.databinding.FragmentAddTaskBinding
 import com.ritika.dowinnApp.viewmodel.TaskViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import okhttp3.MediaType.Companion.toMediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.asRequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 import java.io.File
 import java.util.Calendar
-import kotlin.math.log
 
 class AddTaskFragment : BottomSheetDialogFragment() {
 
@@ -55,9 +43,17 @@ class AddTaskFragment : BottomSheetDialogFragment() {
                     selectedFile = uriToFile(uri)
                     selectedFile?.let {
                         binding.attachmentLayout.hint = it.name
-                        Toast.makeText(requireContext(), "File selected: ${it.name}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "File selected: ${it.name}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     } ?: run {
-                        Toast.makeText(requireContext(), "Failed to select file", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            requireContext(),
+                            "Failed to select file",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -76,14 +72,31 @@ class AddTaskFragment : BottomSheetDialogFragment() {
         taskViewModel = ViewModelProvider(requireActivity())[TaskViewModel::class.java]
 
         setupDropdown(binding.etPriority, listOf("High", "Medium", "Low"))
-        setupDropdown(binding.collectionDropdown, listOf("Health", "Personal", "Work", "Study", "Finance", "Other"))
+        setupDropdown(
+            binding.collectionDropdown,
+            listOf("Health", "Personal", "Work", "Study", "Finance", "Other")
+        )
 
         expandBottomSheetOnShow()
 
         binding.etDateTime.setOnClickListener { showDateTimePicker() }
         binding.etAttachments.setOnClickListener { launchFilePicker() }
-        binding.btnAddTask.setOnClickListener { validateAndCreateTask() }
+        binding.btnAddTask.setThrottleClickListener {
+            validateAndCreateTask()
+        }
     }
+    private var lastClickTime = 0L
+
+    fun View.setThrottleClickListener(interval: Long = 1000L, onClick: (View) -> Unit) {
+        setOnClickListener {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastClickTime >= interval) {
+                lastClickTime = currentTime
+                onClick(it)
+            }
+        }
+    }
+
 
     private fun expandBottomSheetOnShow() {
         dialog?.setOnShowListener { dlg ->
@@ -92,7 +105,8 @@ class AddTaskFragment : BottomSheetDialogFragment() {
 
             bottomSheet?.let {
                 com.google.android.material.bottomsheet.BottomSheetBehavior.from(it).apply {
-                    state = com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
+                    state =
+                        com.google.android.material.bottomsheet.BottomSheetBehavior.STATE_EXPANDED
                     isDraggable = true
                 }
             }
@@ -131,18 +145,26 @@ class AddTaskFragment : BottomSheetDialogFragment() {
         val title = binding.etTaskName.text.toString().trim()
         val description = binding.etDescription.text.toString().trim()
         val collection = binding.collectionDropdown.text.toString().lowercase()
-        val dateTime = binding.etDateTime.text.toString()
+        val rawDateTime = binding.etDateTime.text.toString()
         val priority = binding.etPriority.text.toString().lowercase()
 
-        if (title.isEmpty() || description.isEmpty() || collection.isEmpty() || dateTime.isEmpty() || priority.isEmpty()) {
+        if (title.isEmpty() || description.isEmpty() || collection.isEmpty() || rawDateTime.isEmpty() || priority.isEmpty()) {
             Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
             return
-        }else{
-
-            createTask(title, description, collection, dateTime, priority, selectedFile)
-
         }
+
+        val inputFormat = java.text.SimpleDateFormat("dd/MM/yyyy HH:mm", java.util.Locale.getDefault())
+        inputFormat.timeZone = java.util.TimeZone.getDefault()
+
+        val outputFormat = java.text.SimpleDateFormat("yyyy-MM-dd' 'HH:mm", java.util.Locale.getDefault())
+        outputFormat.timeZone = java.util.TimeZone.getTimeZone("UTC")
+
+        val parsedDate = inputFormat.parse(rawDateTime)
+        val formattedDateTime = outputFormat.format(parsedDate)
+
+        createTask(title, description, collection, formattedDateTime, priority, selectedFile)
     }
+
 
     private fun createTask(
         title: String,
@@ -150,8 +172,9 @@ class AddTaskFragment : BottomSheetDialogFragment() {
         collection: String,
         dateTime: String,
         priority: String,
-        file: File?
+        file: File?,
     ) {
+
         val progressDialog = ProgressDialog(requireContext()).apply {
             setMessage("Creating task...")
             setCancelable(false)
@@ -161,12 +184,14 @@ class AddTaskFragment : BottomSheetDialogFragment() {
         lifecycleScope.launch {
             try {
 
+                Log.d("AddTaskFragment", "createTask: $dateTime")
                 val response = taskViewModel.repository.createTask(
                     title = title,
                     description = description,
+                    completed = "false",
                     category = collection,
                     priority = priority,
-                    dueDate = dateTime,
+                    due_date = dateTime,
                     attachmentFile = file
                 )
 
@@ -186,7 +211,11 @@ class AddTaskFragment : BottomSheetDialogFragment() {
             } catch (e: Exception) {
                 progressDialog.dismiss()
                 Log.e("AddTaskFragment", "createTask error", e)
-                Toast.makeText(context, "Unexpected Error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Unexpected Error: ${e.localizedMessage}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

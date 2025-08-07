@@ -32,15 +32,16 @@ interface ApiService {
     suspend fun createTask(
         @Part("title") title: RequestBody,
         @Part("description") description: RequestBody,
+        @Part("completed") completed:RequestBody,
         @Part("priority") priority: RequestBody,
         @Part("category") category: RequestBody,
-        @Part("dueDate") dueDate: RequestBody,
+        @Part("due_date") due_date: RequestBody,
         @Part attachment: MultipartBody.Part? = null
     ): Response<ResponseBody>
 
-    @PATCH("tasks/{id}/")
+    @PATCH("tasks/{id}")
     suspend fun updateTask(@Path("id") id: Int, @Body task: Task): retrofit2.Response<ApiResponse<Task>>
 
-    @DELETE("tasks/{id}/")
-    suspend fun deleteTask(@Path("id") id: Int): retrofit2.Response<Unit>
+    @DELETE("tasks/{id}")
+    suspend fun deleteTask(@Path("id") id: Int): Response<ResponseBody>
 }

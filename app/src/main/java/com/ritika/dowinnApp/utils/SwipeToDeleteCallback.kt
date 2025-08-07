@@ -19,7 +19,7 @@ class SwipeToDeleteCallback(
     companion object {
         private const val TAG = "SwipeToDelete"
         private const val REVEAL_PERCENTAGE = 0.20f
-        private const val RESET_DELAY_MS = 5000L // 5 seconds
+        private const val RESET_DELAY_MS = 1000L // 1 seconds
     }
 
     private val handler = Handler(Looper.getMainLooper())
