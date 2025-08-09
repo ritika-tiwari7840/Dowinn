@@ -108,14 +108,27 @@
     </style>
 
     <style name="MyCombinedStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox">
-        <item name="strokeColor">@color/borderColor</item>
+        <!-- stroke selectors -->
+        <item name="boxStrokeColor">@color/text_input_stroke</item>
+        <item name="strokeColor">@color/text_input_stroke</item>
+
+        <!-- hint -->
+        <item name="hintTextColor">@color/text_input_stroke</item>
+        <item name="android:textColorHint">@color/text_input_stroke</item>
+
+        <!-- keep widths same -->
+        <item name="boxStrokeWidth">2dp</item>
+        <item name="boxStrokeWidthFocused">2dp</item>
         <item name="strokeWidth">2dp</item>
+
+        <!-- other items you already have -->
         <item name="android:textColor">@color/borderColor</item>
         <item name="android:textSize">18sp</item>
         <item name="android:fontFamily">@font/regular</item>
         <item name="shapeAppearanceOverlay">@style/AddButtonShape</item>
-        <!-- Add more attributes from another style manually -->
+        <item name="hintAnimationEnabled">false</item>
     </style>
+
 
     <style name="AddButtonShape" parent="">
         <item name="cornerSize">15dp</item>

@@ -1,12 +1,13 @@
 package com.ritika.dowinnApp.fragment
 
-import android.app.ProgressDialog
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -25,6 +26,8 @@ import com.ritika.dowinnApp.utils.SwipeToDeleteCallback
 import com.ritika.dowinnApp.viewmodel.TaskViewModel
 import kotlinx.coroutines.launch
 import org.json.JSONObject
+import retrofit2.HttpException
+
 
 class ListFragment : Fragment() {
 
@@ -44,20 +47,27 @@ class ListFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupNavigation()
         setupRecyclerView()
         observeTasks()
+        startShimmerLoading()
         loadTasksFromApi()
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun observeTasks() {
-        taskViewModel.tasks.observe(viewLifecycleOwner) { updatedTasks ->
-            taskList.clear()
-            taskList.addAll(updatedTasks)
-            listAdapter.updateData(updatedTasks)
-            checkEmptyState()
+        try {
+            taskViewModel.tasks.observe(viewLifecycleOwner) { updatedTasks ->
+                taskList.clear()
+                taskList.addAll(updatedTasks)
+                listAdapter.updateData(updatedTasks)
+                checkEmptyState()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -72,82 +82,83 @@ class ListFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        listAdapter = ListAdapter { position ->
-            showDeleteConfirmationDialog(position)
-        }
-
-        binding.recyclerViewList.apply {
-            layoutManager = LinearLayoutManager(context)
-            adapter = listAdapter
-        }
-
-        swipeToDeleteCallback = SwipeToDeleteCallback(requireContext()) { position ->
-            if (listAdapter.isTaskItem(position)) {
+        try {
+            listAdapter = ListAdapter { position ->
                 showDeleteConfirmationDialog(position)
-            } else {
-                listAdapter.notifyItemChanged(position)
             }
-        }
 
-        ItemTouchHelper(swipeToDeleteCallback).attachToRecyclerView(binding.recyclerViewList)
+            listAdapter.setShimmerComponents(binding.shimmerLayout, binding.recyclerViewList, binding.emptyStateText)
 
-        binding.recyclerViewList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-            override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    swipeToDeleteCallback.resetSwipedItem(recyclerView)
+            binding.recyclerViewList.apply {
+                layoutManager = LinearLayoutManager(context)
+                adapter = listAdapter
+            }
+
+            swipeToDeleteCallback = SwipeToDeleteCallback(requireContext()) { position ->
+                if (listAdapter.isTaskItem(position)) {
+                    showDeleteConfirmationDialog(position)
+                } else {
+                    listAdapter.notifyItemChanged(position)
                 }
             }
-        })
 
-        listAdapter.setOnDeleteItemCallback { position ->
-            Log.d("ListFragment", "Item deleted at position: $position")
-            checkEmptyState()
+            ItemTouchHelper(swipeToDeleteCallback).attachToRecyclerView(binding.recyclerViewList)
+
+            binding.recyclerViewList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                        swipeToDeleteCallback.resetSwipedItem(recyclerView)
+                    }
+                }
+            })
+
+            listAdapter.setOnDeleteItemCallback { position ->
+                Log.d("ListFragment", "Item deleted at position: $position")
+                checkEmptyState()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun loadTasksFromApi() {
-        val progressDialog = ProgressDialog(requireContext()).apply {
-            setMessage("Loading tasks...")
-            setCancelable(false)
-            show()
-        }
+        startShimmerLoading()
 
         lifecycleScope.launch {
             try {
                 val response = RetrofitClient.apiService.getTasks()
-                progressDialog.dismiss()
 
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     val tasks = apiResponse?.payload ?: emptyList()
-                    Log.d("ListFragment", "loadTasksFromApi: $tasks")
                     taskList.clear()
                     taskList.addAll(tasks)
+                    stopShimmerLoading()
                     listAdapter.updateData(tasks)
                     checkEmptyState()
                 } else {
                     val errorBody = response.errorBody()?.string()
                     val message = parseErrorMessage(errorBody)
-                    Log.e("ListFragment", "Error loading tasks: $message")
                     Toast.makeText(context, "Error: $message", Toast.LENGTH_LONG).show()
                 }
             } catch (e: Exception) {
-                progressDialog.dismiss()
                 Log.e("ListFragment", "Error loading tasks", e)
-                Toast.makeText(
-                    context,
-                    "Unexpected Error: ${e.localizedMessage}",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(context, "Unexpected Error: ${e.localizedMessage}", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun addTask(task: Task) {
-        taskList.add(0, task)
-        listAdapter.updateData(taskList)
-        checkEmptyState()
-        binding.recyclerViewList.scrollToPosition(0)
+        try {
+            taskList.add(0, task)
+            listAdapter.updateData(taskList)
+            checkEmptyState()
+            binding.recyclerViewList.scrollToPosition(0)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun showDeleteConfirmationDialog(position: Int) {
@@ -163,18 +174,31 @@ class ListFragment : Fragment() {
                     result.onSuccess { message ->
                         listAdapter.deleteItem(position)
                         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+                        Log.d("ListFragment", "showDeleteConfirmationDialog: $message")
                     }
-                    result.onFailure { error ->
-                        Log.e("ListFragment", "Error deleting task", error)
-                        Toast.makeText(
-                            requireContext(),
-                            "Error: ${error.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
-                        val viewHolder =
-                            binding.recyclerViewList.findViewHolderForAdapterPosition(position)
-                        viewHolder?.itemView?.findViewById<View>(R.id.foregroundCard)
-                            ?.animate()?.translationX(0f)?.setDuration(200)?.start()
+
+
+                    result.onFailure { throwable ->
+                        // Try to parse API error body if available
+                        val friendlyMessage = when (throwable) {
+                            is HttpException -> {
+                                val errorBody = throwable.response()?.errorBody()?.string()
+                                parseErrorMessage(errorBody)
+                            }
+                            else -> throwable.message ?: "Something went wrong. Please try again."
+                        }
+
+                        Toast.makeText(requireContext(), friendlyMessage, Toast.LENGTH_LONG).show()
+
+                        // Reset swiped item so UI doesn't get stuck
+                        val viewHolder = binding.recyclerViewList.findViewHolderForAdapterPosition(position)
+                        viewHolder?.itemView
+                            ?.findViewById<View>(R.id.foregroundCard)
+                            ?.animate()
+                            ?.translationX(0f)
+                            ?.setDuration(200)
+                            ?.start()
+
                         swipeToDeleteCallback.resetSwipedItem(binding.recyclerViewList)
                     }
                 }
@@ -183,8 +207,7 @@ class ListFragment : Fragment() {
             }
             .setNegativeButton("Cancel") { dialog, _ ->
                 val viewHolder = binding.recyclerViewList.findViewHolderForAdapterPosition(position)
-                viewHolder?.itemView?.findViewById<View>(R.id.foregroundCard)
-                    ?.animate()?.translationX(0f)?.setDuration(200)?.start()
+                viewHolder?.itemView?.findViewById<View>(R.id.foregroundCard)?.animate()?.translationX(0f)?.setDuration(200)?.start()
                 swipeToDeleteCallback.resetSwipedItem(binding.recyclerViewList)
                 dialog.dismiss()
             }
@@ -214,6 +237,30 @@ class ListFragment : Fragment() {
             }.trim()
         } catch (e: Exception) {
             errorBody ?: "Unknown error"
+        }
+    }
+
+    fun startShimmerLoading() {
+        try {
+            binding.shimmerLayout.visibility = View.VISIBLE
+            binding.shimmerLayout.startShimmer()
+
+            binding.recyclerViewList.visibility = View.GONE
+            binding.emptyStateText.visibility = View.GONE
+            binding.emptyStateText2.visibility = View.GONE
+            binding.imageView2.visibility = View.GONE
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+    fun stopShimmerLoading() {
+        try {
+            binding.shimmerLayout.visibility = View.GONE
+            binding.shimmerLayout.stopShimmer()
+
+            binding.recyclerViewList.visibility = View.VISIBLE
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

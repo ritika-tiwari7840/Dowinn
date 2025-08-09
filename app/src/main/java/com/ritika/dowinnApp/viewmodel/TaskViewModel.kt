@@ -25,14 +25,17 @@ class TaskViewModel : ViewModel() {
     fun createNewTask(
         title: String,
         description: String,
-        completed:String,
+        completed: String,
         category: String,
         priority: String,
         due_date: String,
+        repeat: String,
         attachment: File? = null,
     ) {
         viewModelScope.launch {
-            repository.createTask(title, description,completed, category, priority, due_date, attachment)
+            repository.createTask(
+                title, description, completed, category, priority, due_date, repeat, attachment
+            )
             loadTasks() // updates LiveData, ListFragment will auto-update
         }
     }

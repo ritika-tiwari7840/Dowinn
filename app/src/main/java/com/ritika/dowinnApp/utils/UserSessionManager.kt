@@ -44,16 +44,13 @@ class UserSessionManager(private val context: Context) {
     }
 
     fun markOnboardingCompleted() {
-        getUserSpecificPrefs()?.edit()
-            ?.putBoolean(ONBOARDING_COMPLETED, true)
+        getUserSpecificPrefs()?.edit()?.putBoolean(ONBOARDING_COMPLETED, true)
             ?.commit() // Use commit() instead of apply() for immediate persistence
         Log.d(TAG, "Onboarding marked as completed for user: ${getCurrentUserId()}")
     }
 
     private fun markOnboardingIncomplete() {
-        getUserSpecificPrefs()?.edit()
-            ?.putBoolean(ONBOARDING_COMPLETED, false)
-            ?.commit()
+        getUserSpecificPrefs()?.edit()?.putBoolean(ONBOARDING_COMPLETED, false)?.commit()
         Log.d(TAG, "Onboarding marked as incomplete for user: ${getCurrentUserId()}")
     }
 
@@ -94,9 +91,7 @@ class UserSessionManager(private val context: Context) {
         val googleSignInClient = GoogleSignIn.getClient(
             context,
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(BuildConfig.DEFAULT_WEB_CLIENT_ID)
-                .requestEmail()
-                .build()
+                .requestIdToken(BuildConfig.DEFAULT_WEB_CLIENT_ID).requestEmail().build()
         )
 
         googleSignInClient.signOut().addOnCompleteListener { task ->
@@ -123,9 +118,7 @@ class UserSessionManager(private val context: Context) {
         val googleSignInClient = GoogleSignIn.getClient(
             context,
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(BuildConfig.DEFAULT_WEB_CLIENT_ID)
-                .requestEmail()
-                .build()
+                .requestIdToken(BuildConfig.DEFAULT_WEB_CLIENT_ID).requestEmail().build()
         )
 
         googleSignInClient.revokeAccess().addOnCompleteListener { task ->
@@ -141,9 +134,7 @@ class UserSessionManager(private val context: Context) {
     private fun clearCurrentUserOnboardingData() {
         getCurrentUser()?.let { user ->
             val userPrefs = context.getSharedPreferences("user_${user.uid}", Context.MODE_PRIVATE)
-            userPrefs.edit()
-                .putBoolean(ONBOARDING_COMPLETED, false)
-                .commit()
+            userPrefs.edit().putBoolean(ONBOARDING_COMPLETED, false).commit()
             Log.d(TAG, "Onboarding data cleared for user: ${user.uid}")
         }
     }
@@ -180,7 +171,5 @@ class UserSessionManager(private val context: Context) {
 }
 
 enum class NavigationDestination {
-    LOGIN,
-    ONBOARDING,
-    MAIN_APP
+    LOGIN, ONBOARDING, MAIN_APP
 }

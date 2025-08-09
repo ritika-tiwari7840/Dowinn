@@ -19,6 +19,7 @@ import com.ritika.dowinnApp.api.ApiService
 import com.ritika.dowinnApp.api.RetrofitClient.apiService
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody
+import org.json.JSONObject
 
 class TaskRepository {
 
@@ -33,18 +34,20 @@ class TaskRepository {
     suspend fun createTask(
         title: String,
         description: String,
-        completed:String,
+        completed: String,
         category: String,
         priority: String,
         due_date: String,
-        attachmentFile: File?
+        repeat: String,
+        attachmentFile: File?,
     ): Response<ResponseBody> {
 
         val titlePart = title.toRequestBody("text/plain".toMediaType())
         val descriptionPart = description.toRequestBody("text/plain".toMediaType())
-        val completedPart=completed.toRequestBody("text/plain".toMediaType())
+        val completedPart = completed.toRequestBody("text/plain".toMediaType())
         val categoryPart = category.toRequestBody("text/plain".toMediaType())
         val priorityPart = priority.toRequestBody("text/plain".toMediaType())
+        val repeatPart = repeat.toRequestBody("text/plain".toMediaType())
         val dueDatePart = due_date.toRequestBody("text/plain".toMediaType())
 
         val attachmentPart = attachmentFile?.let {
@@ -59,25 +62,50 @@ class TaskRepository {
             priority = priorityPart,
             category = categoryPart,
             due_date = dueDatePart,
+            repeat = repeatPart,
             attachment = attachmentPart
         )
     }
-        suspend fun deleteTask(id: Int): Result<String> {
-            return try {
-                Log.d("ListFragment", "deleteTask: $id")
-                val response = RetrofitClient.apiService.deleteTask(id)
-                if (response.isSuccessful) {
-                    val message = response.body()?.string() ?: "Task deleted successfully"
-                    Result.success(message)
-                } else {
-                    val errorMsg = response.errorBody()?.string() ?: "Unknown error"
-                    Result.failure(Exception(errorMsg))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
 
+    suspend fun deleteTask(id: Int): Result<String> {
+        return try {
+            val response = apiService.deleteTask(id)
+
+            if (response.isSuccessful) {
+                val bodyString = response.body()?.string() ?: ""
+                val message = try {
+                    JSONObject(bodyString).optString("message", bodyString)
+                } catch (e: Exception) {
+                    bodyString
+                }
+                Result.success(message.ifBlank { "Deleted successfully" })
+            } else {
+                // Use your parseErrorMessage for failures
+                val errorMsg = parseErrorMessage(response.errorBody()?.string())
+                Result.failure(Exception(errorMsg))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
+
+    private fun parseErrorMessage(errorBody: String?): String {
+        return try {
+            val jsonObject = JSONObject(errorBody ?: "")
+            val keys = jsonObject.keys()
+            buildString {
+                while (keys.hasNext()) {
+                    val key = keys.next()
+                    val messages = jsonObject.getJSONArray(key)
+                    for (i in 0 until messages.length()) {
+                        append("${key.replaceFirstChar { it.uppercase() }}: ${messages[i]}\n")
+                    }
+                }
+            }.trim()
+        } catch (e: Exception) {
+            errorBody ?: "Unknown error"
+        }
+    }
 
 }

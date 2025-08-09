@@ -35,6 +35,7 @@ interface ApiService {
         @Part("completed") completed:RequestBody,
         @Part("priority") priority: RequestBody,
         @Part("category") category: RequestBody,
+        @Part("repeat") repeat: RequestBody,
         @Part("due_date") due_date: RequestBody,
         @Part attachment: MultipartBody.Part? = null
     ): Response<ResponseBody>

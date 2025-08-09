@@ -73,7 +73,7 @@ class SwipeToDeleteCallback(
 
                     backgroundView.apply {
                         if (!isClickable) {
-                            setOnClickListener {
+                            setThrottleClickListener {
                                 Log.d(TAG, "Delete icon clicked at $swipedPosition")
                                 onDeleteIconClicked(swipedPosition)
                                 swipedPosition = RecyclerView.NO_POSITION
@@ -96,19 +96,27 @@ class SwipeToDeleteCallback(
         }
     }
 
+    private var lastClickTimeFab = 0L
+
+    fun View.setThrottleClickListener(interval: Long = 1000L, onClick: (View) -> Unit) {
+        setOnClickListener {
+            val currentTime = System.currentTimeMillis()
+            if (currentTime - lastClickTimeFab >= interval) {
+                lastClickTimeFab = currentTime
+                onClick(it)
+            }
+        }
+    }
+
     fun resetSwipedItem(recyclerView: RecyclerView) {
         if (swipedPosition == RecyclerView.NO_POSITION) return
 
         recyclerView.findViewHolderForAdapterPosition(swipedPosition)?.itemView?.let { itemView ->
             val foregroundView = itemView.findViewById<View>(R.id.foregroundCard)
 
-            foregroundView.animate()
-                .translationX(0f)
-                .setDuration(200)
-                .withEndAction {
-                    foregroundView.isClickable = true
-                }
-                .start()
+            foregroundView.animate().translationX(0f).setDuration(200).withEndAction {
+                foregroundView.isClickable = true
+            }.start()
         }
         swipedPosition = RecyclerView.NO_POSITION
         cancelAutoReset()

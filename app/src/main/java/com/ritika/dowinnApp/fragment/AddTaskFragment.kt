@@ -147,6 +147,13 @@ class AddTaskFragment : BottomSheetDialogFragment() {
         val collection = binding.collectionDropdown.text.toString().lowercase()
         val rawDateTime = binding.etDateTime.text.toString()
         val priority = binding.etPriority.text.toString().lowercase()
+        val repeat=when (binding.repeatRadioGroup.checkedRadioButtonId) {
+            R.id.rbDaily -> "daily"
+            R.id.rbWeekly -> "weekly"
+            R.id.rbMonthly-> "monthly"
+            R.id.rbYearly -> "yearly"
+            else -> "none"
+        }
 
         if (title.isEmpty() || description.isEmpty() || collection.isEmpty() || rawDateTime.isEmpty() || priority.isEmpty()) {
             Toast.makeText(requireContext(), "Please fill all fields", Toast.LENGTH_SHORT).show()
@@ -162,7 +169,7 @@ class AddTaskFragment : BottomSheetDialogFragment() {
         val parsedDate = inputFormat.parse(rawDateTime)
         val formattedDateTime = outputFormat.format(parsedDate)
 
-        createTask(title, description, collection, formattedDateTime, priority, selectedFile)
+        createTask(title, description, collection, formattedDateTime, priority,repeat, selectedFile)
     }
 
 
@@ -172,6 +179,7 @@ class AddTaskFragment : BottomSheetDialogFragment() {
         collection: String,
         dateTime: String,
         priority: String,
+        repeat: String = "none",
         file: File?,
     ) {
 
@@ -192,6 +200,7 @@ class AddTaskFragment : BottomSheetDialogFragment() {
                     category = collection,
                     priority = priority,
                     due_date = dateTime,
+                    repeat = repeat,
                     attachmentFile = file
                 )
 

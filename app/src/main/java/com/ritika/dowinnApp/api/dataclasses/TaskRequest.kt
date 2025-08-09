@@ -6,6 +6,7 @@ data class TaskRequest(
     val completed:String,
     val category: String,
     val priority: String,
-    val due_date: String
+    val due_date: String,
+    val repeat:String,
 )
 

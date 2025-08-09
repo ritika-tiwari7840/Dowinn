@@ -8,7 +8,99 @@
     android:background="@color/colorPrimaryContainer"
     android:padding="16dp"
     tools:context=".fragment.ListFragment">
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/shimmerLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        app:shimmer_auto_start="true"
+        app:shimmer_duration="1500"
+        app:shimmer_base_alpha="0.5"
+        app:shimmer_highlight_alpha="0.8"
+         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
+
+    <!-- Dummy shimmer layout inside -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+    <!-- Repeat these dummy items to simulate loading -->
+        <View
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_background"
+            android:backgroundTint="@color/dividerColor"
+            />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="8dp"
+        android:background="@drawable/button_background"
+        android:backgroundTint="@color/dividerColor"
+        />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_background"
+            android:backgroundTint="@color/dividerColor"
+            />
+        <View
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_background"
+            android:backgroundTint="@color/dividerColor"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_background"
+            android:backgroundTint="@color/dividerColor"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_background"
+            android:backgroundTint="@color/dividerColor"
+            />
+        <View
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_background"
+            android:backgroundTint="@color/dividerColor"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_background"
+            android:backgroundTint="@color/dividerColor"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="8dp"
+            android:background="@drawable/button_background"
+            android:backgroundTint="@color/dividerColor"
+            />
+    </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
+
+    <!-- Add more views as needed -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerViewList"
         android:layout_width="0dp"
