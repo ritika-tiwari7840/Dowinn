@@ -1,4 +1,9 @@
 package com.ritika.dowinnApp.api.dataclasses
+
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class Task(
     val id: Int,
     val title: String,
@@ -10,8 +15,7 @@ data class Task(
     val repeat: String,
     val category: String,
     val due_date: String?,
-    val attachment: String?, // URL of uploaded file
-    val user: Int // or a nested object if your API returns more info
-)
-
+    val attachment: String?,
+    val user: Int
+) : Parcelable
 

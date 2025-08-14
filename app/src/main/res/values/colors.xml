@@ -12,5 +12,7 @@
     <color name="black_overlay">#80000000</color>
     <color name="drawer_color">#121212</color>
     <color name="delete">#E22727</color>
+    <color name="red">#FF0000</color>
+    <color name="green">#00FF00</color>
 
 </resources>

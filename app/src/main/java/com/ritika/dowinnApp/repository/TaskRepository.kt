@@ -3,23 +3,16 @@ package com.ritika.dowinnApp.repository
 import android.util.Log
 import com.ritika.dowinnApp.api.RetrofitClient
 import com.ritika.dowinnApp.api.dataclasses.Task
-import com.ritika.dowinnApp.api.dataclasses.TaskRequest
-import com.ritika.dowinnApp.api.dataclasses.ApiResponse
-
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-
 import retrofit2.Response
 import java.io.File
-import com.google.gson.Gson
-import com.ritika.dowinnApp.api.ApiService
 import com.ritika.dowinnApp.api.RetrofitClient.apiService
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.ResponseBody
 import org.json.JSONObject
+import java.util.Locale
 
 class TaskRepository {
 
@@ -89,6 +82,38 @@ class TaskRepository {
         }
     }
 
+    suspend fun updateTaskField(taskId: Int, fieldName: String, fieldValue: Any): Result<Task> {
+        return try {
+            Log.d(
+                "Details",
+                "updateTaskField: hit the repository function taskId: $taskId, fieldName: $fieldName, fieldValue: $fieldValue"
+            )
+            val response = apiService.patchTask(
+                taskId, mapOf(
+                    fieldName to fieldValue.toString().lowercase(Locale.getDefault())
+                )
+            )
+            if (response.isSuccessful) {
+                // Log successful response
+                Log.d("TaskRepository", "Successfully updated task $taskId. Field: $fieldName")
+                response.body()?.payload?.let {
+                    Result.success(it)
+                } ?: Result.failure(Exception("Empty response payload"))
+            } else {
+                // Get the detailed error message from the error body
+                val errorBody = response.errorBody()?.string()
+                val errorMessage = parseErrorMessage(errorBody)
+
+                // Log the error
+                Log.e("TaskRepository", "API Error: ${response.code()} - $errorMessage")
+                Result.failure(Exception(errorMessage))
+            }
+        } catch (e: Exception) {
+            // Log network or other exceptions
+            Log.e("TaskRepository", "Exception during task update: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
 
     private fun parseErrorMessage(errorBody: String?): String {
         return try {

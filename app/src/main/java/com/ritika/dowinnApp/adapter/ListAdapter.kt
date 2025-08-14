@@ -5,6 +5,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.RequiresApi
+import androidx.core.os.bundleOf
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.shimmer.ShimmerFrameLayout
 import com.ritika.dowinnApp.R
@@ -25,6 +27,7 @@ class ListAdapter(
     private val items = mutableListOf<DisplayItem>()
     private var onDeleteItemCallback: ((Int) -> Unit)? = null
     private var onEmptyStateCallback: (() -> Unit)? = null
+    private  var navController: androidx.navigation.NavController? = null
 
     fun setOnDeleteItemCallback(listener: (Int) -> Unit) {
         onDeleteItemCallback = listener
@@ -207,9 +210,26 @@ class ListAdapter(
 
     inner class TaskViewHolder(private val binding: ItemListBinding) :
         RecyclerView.ViewHolder(binding.root) {
+        init {
+            binding.foregroundCard.setOnClickListener {
+                navController = binding.root.findNavController()
+                try {
+                    if (navController != null) {
+                        val task = getTaskAt(adapterPosition)
+                        if (task != null) {
+                            // Navigate to the task details screen
+                             navController?.navigate(R.id.action_listFragment_to_detailsFragment, bundleOf("task" to task))
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
 
         @RequiresApi(Build.VERSION_CODES.O)
         fun bind(task: Task) {
+
             try {
                 binding.titleText.text = task.title ?: "No Title"
                 binding.descriptionText.text = task.description ?: "No Description"

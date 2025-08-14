@@ -6,6 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ritika.dowinnApp.api.dataclasses.Task
 import com.ritika.dowinnApp.repository.TaskRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 
@@ -45,6 +47,17 @@ class TaskViewModel : ViewModel() {
         viewModelScope.launch {
             val result = repository.deleteTask(id)
             _deleteResult.postValue(result)
+        }
+    }
+
+
+    private val _updateResult = MutableStateFlow<Result<Task>?>(null)
+    val updateResult = _updateResult.asStateFlow()
+
+    fun updateTaskField(taskId: Int, fieldName: String, fieldValue: Any) {
+        viewModelScope.launch {
+            val result = repository.updateTaskField(taskId, fieldName, fieldValue)
+            _updateResult.value = result
         }
     }
 }
