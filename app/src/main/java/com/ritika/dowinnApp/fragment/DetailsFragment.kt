@@ -28,9 +28,8 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
 
     // Task data - would typically come from arguments or database
     private var taskId = -1
-    private var taskTitle = "Hello this is task title"
-    private var taskDescription =
-        "This is a description of the task. It can be long and will wrap to multiple lines as needed."
+    private var taskTitle = ""
+    private var taskDescription = ""
     private var taskDate = ""
     private var taskTime = ""
     private var taskPriority = ""
@@ -46,75 +45,9 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("DetailsFragment", "onCreate called")
-
+        // Load data from arguments in onCreate
         arguments?.let { bundle ->
-            Log.d("Details", "Bundle exists with ${bundle.size()} items")
-            val taskObject = bundle.get("task")
-            if (taskObject != null) {
-                Log.d("DetailsFragment", "Task object found: $taskObject")
-                val taskString = taskObject.toString()
-
-                val idMatch = Regex("id=([^,)]+)").find(taskString)
-                if (idMatch != null) {
-                    try {
-                        taskId = idMatch.groupValues[1].trim().toInt()
-                    } catch (e: NumberFormatException) {
-                        Log.e("DetailsFragment", "Failed to parse task ID: ${e.message}")
-                    }
-                }
-
-                val titleMatch = Regex("title=([^,)]+)").find(taskString)
-                if (titleMatch != null) taskTitle = titleMatch.groupValues[1].trim()
-
-                val descMatch = Regex("description=([^,)]+)").find(taskString)
-                if (descMatch != null) taskDescription = descMatch.groupValues[1].trim()
-
-                val dueDateMatch = Regex("due_date=([^,)]+)").find(taskString)
-                if (dueDateMatch != null) {
-                    val dueDateTime = dueDateMatch.groupValues[1].trim()
-                    if (dueDateTime.contains(" ")) {
-                        val parts = dueDateTime.split(" ")
-                        if (parts.size >= 2) {
-                            val datePart = parts[0]
-                            val timePart = parts[1]
-                            val dateComponents = datePart.split("-")
-                            if (dateComponents.size == 3) {
-                                taskDate =
-                                    "${dateComponents[2]}/${dateComponents[1]}/${dateComponents[0]}"
-                            }
-                            taskTime = timePart
-                        }
-                    }
-                }
-
-                val priorityMatch = Regex("priority=([^,)]+)").find(taskString)
-                if (priorityMatch != null) taskPriority = priorityMatch.groupValues[1].trim()
-                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-
-                val repeatMatch = Regex("repeat=([^,)]+)").find(taskString)
-                if (repeatMatch != null) taskRepeat = repeatMatch.groupValues[1].trim()
-                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-
-                val attachmentMatch = Regex("attachment=([^,)]+)").find(taskString)
-                if (attachmentMatch != null) {
-                    val attachmentUrl = attachmentMatch.groupValues[1].trim()
-                    if (attachmentUrl.isNotEmpty() && attachmentUrl != "null") {
-                        taskAttachment = attachmentUrl.substringAfterLast("/")
-                    }
-                }
-
-                val categoryMatch = Regex("category=([^,)]+)").find(taskString)
-                if (categoryMatch != null) taskCollection = categoryMatch.groupValues[1].trim()
-                    .replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }
-
-                val statusMatch = Regex("status=([^,)]+)").find(taskString)
-                if (statusMatch != null) taskStatus = statusMatch.groupValues[1].trim().toBoolean()
-                Log.d(
-                    "Details",
-                    " Initial updates of ui , onCreate: Parsed task details - ID: $taskId, Title: $taskTitle, Description: $taskDescription, Date: $taskDate, Time: $taskTime, Priority: $taskPriority, Repeat: $taskRepeat, Attachment: $taskAttachment, Collection: $taskCollection, Status: $taskStatus"
-                )
-
-            }
+            loadTaskDataFromBundle(bundle)
         } ?: Log.d("Details", "No arguments bundle found")
     }
 
@@ -128,10 +61,49 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        // If coming back from another fragment, arguments might be null in onCreate, so re-check here.
+        arguments?.let { bundle ->
+            loadTaskDataFromBundle(bundle)
+        }
         setupClickListeners()
         updateUI()
         setupStatusUpdateObserver()
     }
+
+    private fun loadTaskDataFromBundle(bundle: Bundle) {
+        taskId = bundle.getInt("taskId", -1)
+        taskTitle = bundle.getString("taskTitle", "") ?: ""
+        taskDescription = bundle.getString("taskDescription", "") ?: ""
+        val fullDueDate = bundle.getString("taskDueDate", "") ?: ""
+        if (fullDueDate.isNotEmpty() && fullDueDate != "null") {
+            val parts = fullDueDate.split(" ")
+            if (parts.size >= 2) {
+                val datePart = parts[0]
+                val timePart = parts[1]
+                val dateComponents = datePart.split("-")
+                if (dateComponents.size == 3) {
+                    taskDate = "${dateComponents[2]}/${dateComponents[1]}/${dateComponents[0]}"
+                }
+                taskTime = timePart
+            }
+        } else {
+            taskDate = ""
+            taskTime = ""
+        }
+        taskPriority = bundle.getString("taskPriority", "") ?: ""
+        taskRepeat = bundle.getString("taskRepeat", "") ?: ""
+        taskCollection = bundle.getString("taskCategory", "") ?: ""
+        taskStatus = bundle.getBoolean("taskCompleted", false)
+        val attachmentUrl = bundle.getString("taskAttachment", "") ?: ""
+        if (attachmentUrl.isNotEmpty() && attachmentUrl != "null") {
+            taskAttachment = attachmentUrl.substringAfterLast("/")
+        } else {
+            taskAttachment = ""
+        }
+
+        Log.d("Details", "Loaded task details from Bundle - ID: $taskId, Title: $taskTitle, Status: $taskStatus")
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -210,8 +182,8 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
     }
 
     private fun updateUI() {
-        binding.title.text = taskTitle
-        binding.description.text = taskDescription
+        binding.title.text = if (taskTitle.isNotEmpty()) taskTitle else "No title"
+        binding.description.text = if (taskDescription.isNotEmpty()) taskDescription else "No description"
         binding.Date.text = if (taskDate.isNotEmpty()) taskDate else "Add Date"
         binding.Time.text = if (taskTime.isNotEmpty()) taskTime else "Add Time"
         binding.priority.text = if (taskPriority.isNotEmpty()) taskPriority else "Edit Priority"
@@ -255,7 +227,6 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
                     taskTime = ""
                 }
             }
-
             EditFieldBottomSheet.FIELD_PRIORITY -> taskPriority = newValue
             EditFieldBottomSheet.FIELD_REPEAT -> taskRepeat = newValue
             EditFieldBottomSheet.FIELD_ATTACHMENT -> taskAttachment = newValue

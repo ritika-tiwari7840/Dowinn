@@ -1,6 +1,7 @@
 package com.ritika.dowinnApp.adapter
 
 import android.os.Build
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
@@ -28,6 +29,7 @@ class ListAdapter(
     private var onDeleteItemCallback: ((Int) -> Unit)? = null
     private var onEmptyStateCallback: (() -> Unit)? = null
     private  var navController: androidx.navigation.NavController? = null
+    private lateinit var arguments:Bundle
 
     fun setOnDeleteItemCallback(listener: (Int) -> Unit) {
         onDeleteItemCallback = listener
@@ -99,6 +101,7 @@ class ListAdapter(
                 when (items[i]) {
                     is DisplayItem.TaskItem -> return true
                     is DisplayItem.DateHeader -> return false // Found next header, no tasks in this section
+                    else -> {}
                 }
             }
             return false // Reached end of list, no tasks found
@@ -194,6 +197,7 @@ class ListAdapter(
             when (val item = items[position]) {
                 is DisplayItem.DateHeader -> (holder as HeaderViewHolder).bind(item.label)
                 is DisplayItem.TaskItem -> (holder as TaskViewHolder).bind(item.task)
+                else -> {}
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -218,7 +222,21 @@ class ListAdapter(
                         val task = getTaskAt(adapterPosition)
                         if (task != null) {
                             // Navigate to the task details screen
-                             navController?.navigate(R.id.action_listFragment_to_detailsFragment, bundleOf("task" to task))
+                            arguments= Bundle().apply {
+                                putInt("taskId", task.id)
+                                putString("taskTitle", task.title)
+                                putString("taskDescription", task.description)
+                                putString("taskDueDate", task.due_date)
+                                putString("taskPriority", task.priority)
+                                putString("taskCategory", task.category)
+                                putString("taskRepeat", task.repeat)
+                                putBoolean("taskCompleted", task.completed)
+                                putString("taskCreatedAt", task.created_at)
+                                putString("taskUpdatedAt", task.updated_at)
+                                putString("taskAttachment", task.attachment)
+                                putInt("taskUser", task.user)
+                            }
+                             navController?.navigate(R.id.action_listFragment_to_detailsFragment, arguments)
                         }
                     }
                 } catch (e: Exception) {
