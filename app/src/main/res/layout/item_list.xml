@@ -22,63 +22,78 @@
         android:layout_marginEnd="15dp"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/foregroundCard"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/button_background"
-        android:orientation="horizontal"
-        android:gravity="center"
         android:paddingHorizontal="10dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         >
+
         <ImageView
+            android:id="@+id/taskIcon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/circle"
             android:contentDescription="Task Icon"
-            />
-        <LinearLayout
-            android:layout_width="match_parent"
+            android:src="@drawable/circle"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="14dp"
+            app:layout_constraintEnd_toStartOf="@id/textContainer"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/textContainer"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/button_background"
+            android:layout_marginStart="8dp"
             android:padding="8dp"
-            >
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/taskIcon"
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                 android:id="@+id/titleText"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textStyle="bold"
-                android:textSize="18sp"
                 android:fontFamily="@font/regular"
                 android:textColor="@color/white"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent" app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:text="Task Title" />
-
 
             <TextView
                 android:id="@+id/descriptionText"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="@color/dividerColor"
                 android:fontFamily="@font/regular"
+                android:textColor="@color/dividerColor"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/titleText"
                 tools:text="This is a detailed description of the task." />
+
             <TextView
                 android:id="@+id/dueDateText"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
+                android:fontFamily="@font/regular"
                 android:textAlignment="viewEnd"
                 android:textColor="@color/white"
-                android:fontFamily="@font/regular"
-                tools:text="" />
-        </LinearLayout>
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/descriptionText"
+                tools:text="Due Date" />
 
-    </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

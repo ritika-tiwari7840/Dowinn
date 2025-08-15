@@ -47,7 +47,10 @@ class TaskRepository {
             val requestFile = it.asRequestBody("multipart/form-data".toMediaType())
             MultipartBody.Part.createFormData("attachment", it.name, requestFile)
         }
-        Log.d("AddTaskFragment", "createTask:  $due_date")
+        Log.d(
+            "AddTaskFragment",
+            "createTask:  $due_date $repeat $priority $category $completed $title $description" + " ${attachmentPart ?: "No Attachment"}"
+        )
         return RetrofitClient.apiService.createTask(
             title = titlePart,
             description = descriptionPart,
@@ -111,6 +114,28 @@ class TaskRepository {
         } catch (e: Exception) {
             // Log network or other exceptions
             Log.e("TaskRepository", "Exception during task update: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+
+    // Inside your TaskRepository
+    suspend fun updateAttachment(taskId: Int, attachmentPart: MultipartBody.Part): Result<Task> {
+        return try {
+            Log.d("TaskRepository", "Updating attachment for task: $taskId")
+            val response = apiService.updateAttachment(taskId, attachmentPart)
+            if (response.isSuccessful) {
+                Log.d("TaskRepository", "Attachment updated successfully for task $response")
+                response.body()?.payload?.let {
+                    Result.success(it)
+                } ?: Result.failure(Exception("Empty response payload"))
+            } else {
+                val errorBody = response.errorBody()?.string()
+                val errorMessage = parseErrorMessage(errorBody)
+                Log.e("TaskRepository", "API Error: ${response.code()} - $errorMessage")
+                Result.failure(Exception(errorMessage))
+            }
+        } catch (e: Exception) {
+            Log.e("TaskRepository", "Exception during attachment update: ${e.message}", e)
             Result.failure(e)
         }
     }

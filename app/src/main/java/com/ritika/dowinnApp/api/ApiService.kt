@@ -42,12 +42,18 @@ interface ApiService {
         @Part attachment: MultipartBody.Part? = null,
     ): Response<ResponseBody>
 
-    // In ApiService.kt
     @FormUrlEncoded
     @PATCH("tasks/{id}")
     suspend fun patchTask(
         @Path("id") taskId: Int,
         @FieldMap updates: Map<String, String>, // Use @FieldMap to send key-value pairs
+    ): Response<ApiResponse<Task>>
+
+    @Multipart
+    @PATCH("tasks/{id}")
+    suspend fun updateAttachment(
+        @Path("id") taskId: Int,
+        @Part attachment: MultipartBody.Part,
     ): Response<ApiResponse<Task>>
 
     @DELETE("tasks/{id}")

@@ -1,6 +1,7 @@
 package com.ritika.dowinnApp.fragment
 
 import android.os.Bundle
+import android.os.SystemClock
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -45,7 +46,6 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d("DetailsFragment", "onCreate called")
-        // Load data from arguments in onCreate
         arguments?.let { bundle ->
             loadTaskDataFromBundle(bundle)
         } ?: Log.d("Details", "No arguments bundle found")
@@ -58,10 +58,8 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
         return binding.root
     }
 
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        // If coming back from another fragment, arguments might be null in onCreate, so re-check here.
         arguments?.let { bundle ->
             loadTaskDataFromBundle(bundle)
         }
@@ -71,39 +69,46 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
     }
 
     private fun loadTaskDataFromBundle(bundle: Bundle) {
-        taskId = bundle.getInt("taskId", -1)
-        taskTitle = bundle.getString("taskTitle", "") ?: ""
-        taskDescription = bundle.getString("taskDescription", "") ?: ""
-        val fullDueDate = bundle.getString("taskDueDate", "") ?: ""
-        if (fullDueDate.isNotEmpty() && fullDueDate != "null") {
-            val parts = fullDueDate.split(" ")
-            if (parts.size >= 2) {
-                val datePart = parts[0]
-                val timePart = parts[1]
-                val dateComponents = datePart.split("-")
-                if (dateComponents.size == 3) {
-                    taskDate = "${dateComponents[2]}/${dateComponents[1]}/${dateComponents[0]}"
+        try {
+            taskId = bundle.getInt("taskId", -1)
+            taskTitle = bundle.getString("taskTitle", "") ?: ""
+            taskDescription = bundle.getString("taskDescription", "") ?: ""
+            val fullDueDate = bundle.getString("taskDueDate", "") ?: ""
+            if (fullDueDate.isNotEmpty() && fullDueDate != "null") {
+                val parts = fullDueDate.split(" ")
+                if (parts.size >= 2) {
+                    val datePart = parts[0]
+                    val timePart = parts[1]
+                    val dateComponents = datePart.split("-")
+                    if (dateComponents.size == 3) {
+                        taskDate = "${dateComponents[2]}/${dateComponents[1]}/${dateComponents[0]}"
+                    }
+                    taskTime = timePart
                 }
-                taskTime = timePart
+            } else {
+                taskDate = ""
+                taskTime = ""
             }
-        } else {
-            taskDate = ""
-            taskTime = ""
+            taskPriority = bundle.getString("taskPriority", "") ?: ""
+            taskRepeat = bundle.getString("taskRepeat", "") ?: ""
+            taskCollection = bundle.getString("taskCategory", "") ?: ""
+            taskStatus = bundle.getBoolean("taskCompleted", false)
+            val attachmentUrl = bundle.getString("taskAttachment", "") ?: ""
+            if (attachmentUrl.isNotEmpty() && attachmentUrl != "null") {
+                taskAttachment = attachmentUrl.substringAfterLast("/")
+            } else {
+                taskAttachment = ""
+            }
+            Log.d(
+                "Details",
+                "Loaded task details from Bundle - ID: $taskId, Title: $taskTitle, Status: $taskStatus"
+            )
+        } catch (e: Exception) {
+            Log.e("DetailsFragment", "Failed to load task data from bundle: ${e.message}")
+            // Optional: show a user-facing error message or navigate back
+            Toast.makeText(requireContext(), "Failed to load task details.", Toast.LENGTH_SHORT).show()
         }
-        taskPriority = bundle.getString("taskPriority", "") ?: ""
-        taskRepeat = bundle.getString("taskRepeat", "") ?: ""
-        taskCollection = bundle.getString("taskCategory", "") ?: ""
-        taskStatus = bundle.getBoolean("taskCompleted", false)
-        val attachmentUrl = bundle.getString("taskAttachment", "") ?: ""
-        if (attachmentUrl.isNotEmpty() && attachmentUrl != "null") {
-            taskAttachment = attachmentUrl.substringAfterLast("/")
-        } else {
-            taskAttachment = ""
-        }
-
-        Log.d("Details", "Loaded task details from Bundle - ID: $taskId, Title: $taskTitle, Status: $taskStatus")
     }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -112,56 +117,41 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
     }
 
     private fun setupClickListeners() {
-        binding.title.setOnClickListener {
-            showEditBottomSheet(
-                EditFieldBottomSheet.FIELD_TITLE, taskTitle
-            )
-        }
-        binding.editIcon.setOnClickListener {
-            showEditBottomSheet(
-                EditFieldBottomSheet.FIELD_TITLE, taskTitle
-            )
-        }
-        binding.description.setOnClickListener {
-            showEditBottomSheet(
-                EditFieldBottomSheet.FIELD_DESCRIPTION, taskDescription
-            )
-        }
-        binding.Date.setOnClickListener {
-            showEditBottomSheet(
-                EditFieldBottomSheet.FIELD_DATETIME, "$taskDate $taskTime"
-            )
-        }
-        binding.Time.setOnClickListener {
-            showEditBottomSheet(
-                EditFieldBottomSheet.FIELD_DATETIME, "$taskDate $taskTime"
-            )
-        }
-        binding.priority.setOnClickListener {
-            showEditBottomSheet(
-                EditFieldBottomSheet.FIELD_PRIORITY, taskPriority
-            )
-        }
-        binding.Repeat.setOnClickListener {
-            showEditBottomSheet(
-                EditFieldBottomSheet.FIELD_REPEAT, taskRepeat
-            )
-        }
-        binding.attachment.setOnClickListener {
-            showEditBottomSheet(
-                EditFieldBottomSheet.FIELD_ATTACHMENT, taskAttachment
-            )
-        }
-        binding.Collection.setOnClickListener {
-            showEditBottomSheet(
-                EditFieldBottomSheet.FIELD_COLLECTION, taskCollection
-            )
-        }
+        // Applying debounce to all listeners that open the bottom sheet
+        binding.title.setOnClickListener(debounce {
+            showEditBottomSheet(EditFieldBottomSheet.FIELD_TITLE, taskTitle)
+        })
+        binding.editIcon.setOnClickListener(debounce {
+            showEditBottomSheet(EditFieldBottomSheet.FIELD_TITLE, taskTitle)
+        })
+        binding.description.setOnClickListener(debounce {
+            showEditBottomSheet(EditFieldBottomSheet.FIELD_DESCRIPTION, taskDescription)
+        })
+        binding.Date.setOnClickListener(debounce {
+            showEditBottomSheet(EditFieldBottomSheet.FIELD_DATETIME, "$taskDate $taskTime")
+        })
+        binding.Time.setOnClickListener(debounce {
+            showEditBottomSheet(EditFieldBottomSheet.FIELD_DATETIME, "$taskDate $taskTime")
+        })
+        binding.priority.setOnClickListener(debounce {
+            showEditBottomSheet(EditFieldBottomSheet.FIELD_PRIORITY, taskPriority)
+        })
+        binding.Repeat.setOnClickListener(debounce {
+            showEditBottomSheet(EditFieldBottomSheet.FIELD_REPEAT, taskRepeat)
+        })
+        binding.attachment.setOnClickListener(debounce {
+            showEditBottomSheet(EditFieldBottomSheet.FIELD_ATTACHMENT, taskAttachment)
+        })
+        binding.Collection.setOnClickListener(debounce {
+            showEditBottomSheet(EditFieldBottomSheet.FIELD_COLLECTION, taskCollection)
+        })
 
         binding.status.setOnClickListener {
             statusUpdateJob?.cancel()
             taskStatus = !taskStatus
-            updateUI()
+            if (_binding != null) {
+                updateUI()
+            }
             Log.d("DetailsFragment", "Task status toggled to: $taskStatus")
             statusUpdateJob = statusUpdateScope.launch {
                 delay(500)
@@ -170,69 +160,101 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
         }
     }
 
+    fun debounce(delay: Long = 500L, block: (View) -> Unit): View.OnClickListener {
+        var lastClickTime = 0L
+        return View.OnClickListener {
+            val currentTime = SystemClock.elapsedRealtime()
+            if (currentTime - lastClickTime > delay) {
+                lastClickTime = currentTime
+                block(it)
+            }
+        }
+    }
+
     private fun showEditBottomSheet(fieldType: String, currentValue: String) {
-        val bottomSheet = EditFieldBottomSheet.newInstance(
-            fieldType = fieldType,
-            currentValue = currentValue,
-            taskTitle = taskTitle,
-            taskId = taskId
-        )
-        bottomSheet.setOnFieldEditListener(this)
-        bottomSheet.show(parentFragmentManager, "EditFieldBottomSheet")
+        // Use try-catch to guard against potential issues with fragment manager
+        try {
+            if (isAdded) { // Check if fragment is attached to activity
+                val bottomSheet = EditFieldBottomSheet.newInstance(
+                    fieldType = fieldType,
+                    currentValue = currentValue,
+                    taskTitle = taskTitle,
+                    taskId = taskId
+                )
+                bottomSheet.setOnFieldEditListener(this)
+                bottomSheet.show(parentFragmentManager, "EditFieldBottomSheet")
+            }
+        } catch (e: Exception) {
+            Log.e("DetailsFragment", "Failed to show bottom sheet: ${e.message}")
+        }
     }
 
     private fun updateUI() {
-        binding.title.text = if (taskTitle.isNotEmpty()) taskTitle else "No title"
-        binding.description.text = if (taskDescription.isNotEmpty()) taskDescription else "No description"
-        binding.Date.text = if (taskDate.isNotEmpty()) taskDate else "Add Date"
-        binding.Time.text = if (taskTime.isNotEmpty()) taskTime else "Add Time"
-        binding.priority.text = if (taskPriority.isNotEmpty()) taskPriority else "Edit Priority"
-        binding.Repeat.text = if (taskRepeat.isNotEmpty()) taskRepeat else "Edit Repeatation"
-        binding.attachment.text =
-            if (taskAttachment.isNotEmpty()) taskAttachment else "Edit Attachment"
-        binding.Collection.text =
-            if (taskCollection.isNotEmpty()) taskCollection else "Edit Collection"
+        // Essential check: The view could be null if the fragment is in a torn-down state.
+        if (_binding == null) return
 
-        val completedColor = ContextCompat.getColor(requireContext(), R.color.green)
-        val pendingColor = ContextCompat.getColor(requireContext(), R.color.red)
+        try {
+            binding.title.text = if (taskTitle.isNotEmpty()) taskTitle else "No title"
+            binding.description.text =
+                if (taskDescription.isNotEmpty()) taskDescription else "No description"
+            binding.Date.text = if (taskDate.isNotEmpty()) taskDate else "Add Date"
+            binding.Time.text = if (taskTime.isNotEmpty()) taskTime else "Add Time"
+            binding.priority.text = if (taskPriority.isNotEmpty()) taskPriority else "Edit Priority"
+            binding.Repeat.text = if (taskRepeat.isNotEmpty()) taskRepeat else "Edit Repeatation"
+            binding.attachment.text =
+                if (taskAttachment.isNotEmpty()) taskAttachment else "Edit Attachment"
+            binding.Collection.text =
+                if (taskCollection.isNotEmpty()) taskCollection else "Edit Collection"
 
-        if (taskStatus) {
-            binding.status.text = "Completed"
-            binding.status.setTextColor(completedColor)
-            binding.arrowImage.visibility = View.VISIBLE
-        } else {
-            binding.status.text = "Pending"
-            binding.status.setTextColor(pendingColor)
-            binding.arrowImage.visibility = View.GONE
+            val completedColor = ContextCompat.getColor(requireContext(), R.color.green)
+            val pendingColor = ContextCompat.getColor(requireContext(), R.color.red)
+
+            if (taskStatus) {
+                binding.status.text = "Completed"
+                binding.status.setTextColor(completedColor)
+                binding.arrowImage.visibility = View.VISIBLE
+            } else {
+                binding.status.text = "Pending"
+                binding.status.setTextColor(pendingColor)
+                binding.arrowImage.visibility = View.GONE
+            }
+        } catch (e: Exception) {
+            Log.e("DetailsFragment", "Error updating UI: ${e.message}")
         }
     }
 
     override fun onFieldUpdated(fieldType: String, newValue: String) {
-        when (fieldType) {
-            EditFieldBottomSheet.FIELD_TITLE -> taskTitle = newValue
-            EditFieldBottomSheet.FIELD_DESCRIPTION -> taskDescription = newValue
-            EditFieldBottomSheet.FIELD_DATETIME -> {
-                if (newValue.isNotEmpty() && newValue.contains(" ")) {
-                    val parts = newValue.split(" ")
-                    if (parts.size >= 2) {
-                        val datePart = parts[0]
-                        val timePart = parts[1]
-                        val dateComponents = datePart.split("-")
-                        if (dateComponents.size == 3) taskDate =
-                            "${dateComponents[2]}/${dateComponents[1]}/${dateComponents[0]}"
-                        taskTime = timePart
+        // The logic inside this block is generally safe, but a try-catch is good practice
+        // for defensive programming against unexpected data formats.
+        try {
+            when (fieldType) {
+                EditFieldBottomSheet.FIELD_TITLE -> taskTitle = newValue
+                EditFieldBottomSheet.FIELD_DESCRIPTION -> taskDescription = newValue
+                EditFieldBottomSheet.FIELD_DATETIME -> {
+                    if (newValue.isNotEmpty() && newValue.contains(" ")) {
+                        val parts = newValue.split(" ")
+                        if (parts.size >= 2) {
+                            val datePart = parts[0]
+                            val timePart = parts[1]
+                            val dateComponents = datePart.split("-")
+                            if (dateComponents.size == 3) taskDate =
+                                "${dateComponents[2]}/${dateComponents[1]}/${dateComponents[0]}"
+                            taskTime = timePart
+                        }
+                    } else if (newValue.isEmpty()) {
+                        taskDate = ""
+                        taskTime = ""
                     }
-                } else if (newValue.isEmpty()) {
-                    taskDate = ""
-                    taskTime = ""
                 }
+                EditFieldBottomSheet.FIELD_PRIORITY -> taskPriority = newValue
+                EditFieldBottomSheet.FIELD_REPEAT -> taskRepeat = newValue
+                EditFieldBottomSheet.FIELD_ATTACHMENT -> taskAttachment = newValue
+                EditFieldBottomSheet.FIELD_COLLECTION -> taskCollection = newValue
             }
-            EditFieldBottomSheet.FIELD_PRIORITY -> taskPriority = newValue
-            EditFieldBottomSheet.FIELD_REPEAT -> taskRepeat = newValue
-            EditFieldBottomSheet.FIELD_ATTACHMENT -> taskAttachment = newValue
-            EditFieldBottomSheet.FIELD_COLLECTION -> taskCollection = newValue
+            updateUI()
+        } catch (e: Exception) {
+            Log.e("DetailsFragment", "Error processing updated field: ${e.message}")
         }
-        updateUI()
     }
 
     private fun updateTaskStatusInBackend(taskId: Int, isCompleted: Boolean) {
@@ -240,6 +262,7 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
             Log.e("DetailsFragment", "Invalid task ID, cannot update status.")
             return
         }
+        // This call is in a coroutine, so it's a safe place for API calls.
         taskViewModel.updateTaskField(taskId, "completed", isCompleted.toString())
         Log.d("DetailsFragment", "API call initiated to update task $taskId status to $isCompleted")
     }
@@ -247,30 +270,35 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
     private fun setupStatusUpdateObserver() {
         lifecycleScope.launch {
             taskViewModel.updateResult.collect { result ->
-                result?.let {
-                    if (it.isSuccess) {
-                        val updatedTask = it.getOrNull()
-                        updatedTask?.let { task ->
-                            taskStatus = task.completed
-                            Log.d(
-                                "DetailsFragment",
-                                "Task status updated successfully! UI reflecting new status: ${task.completed}"
-                            )
-                            Toast.makeText(
-                                requireContext(),
-                                "Status updated to ${if (taskStatus) "Completed" else "Pending"}",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                if (_binding == null) {
+                    Log.d("DetailsFragment", "View is null, skipping UI update.")
+                    return@collect
+                }
+                try {
+                    result?.let {
+                        if (it.isSuccess) {
+                            val updatedTask = it.getOrNull()
+                            updatedTask?.let { task ->
+                                taskStatus = task.completed
+                                Log.d("DetailsFragment", "Task status updated successfully!")
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Status updated to ${if (taskStatus) "Completed" else "Pending"}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                                updateUI()
+                            }
+                        } else {
+                            val errorMessage = it.exceptionOrNull()?.message ?: "Failed to update status."
+                            Log.e("DetailsFragment", "Status update failed: $errorMessage")
+                            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
+                            // Revert status on failure
+                            taskStatus = !taskStatus
                             updateUI()
                         }
-                    } else {
-                        val errorMessage =
-                            it.exceptionOrNull()?.message ?: "Failed to update status."
-                        Log.e("DetailsFragment", "Status update failed: $errorMessage")
-                        Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_LONG).show()
-                        taskStatus = !taskStatus
-                        updateUI()
                     }
+                } catch (e: Exception) {
+                    Log.e("DetailsFragment", "Error during status observer handling: ${e.message}")
                 }
             }
         }
@@ -278,12 +306,13 @@ class DetailsFragment : Fragment(), EditFieldBottomSheet.OnFieldEditListener {
 
     override fun onUpdateSuccess() {
         Log.d("DetailsFragment", "API update successful")
-        // Optional: refresh data or perform additional actions
     }
 
     override fun onUpdateError(error: String) {
         Log.e("DetailsFragment", "API update failed: $error")
-        Toast.makeText(requireContext(), "Update failed: $error", Toast.LENGTH_LONG).show()
-        // Optional: revert UI changes or show retry options
+        // Check if context is available before showing a toast
+        if (context != null) {
+            Toast.makeText(requireContext(), "Update failed: $error", Toast.LENGTH_LONG).show()
+        }
     }
 }

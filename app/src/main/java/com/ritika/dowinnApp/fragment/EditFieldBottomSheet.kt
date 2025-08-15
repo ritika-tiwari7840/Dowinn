@@ -3,7 +3,9 @@ package com.ritika.dowinnApp.fragment
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Context
 import android.content.Intent
+import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.provider.OpenableColumns
@@ -13,6 +15,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.res.ResourcesCompat
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -20,10 +23,12 @@ import com.ritika.dowinnApp.R
 import com.ritika.dowinnApp.api.dataclasses.Task
 import com.ritika.dowinnApp.viewmodel.TaskViewModel
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
-import java.util.*
 import java.text.SimpleDateFormat
-import java.lang.Exception
+import java.util.*
 
 class EditFieldBottomSheet : BottomSheetDialogFragment() {
 
@@ -76,6 +81,10 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
     private var taskTitle: String = ""
     private var taskId: Int = -1
 
+    // Fonts
+    private var regularFont: Typeface? = null
+    private var mediumFont: Typeface? = null
+
     // Views
     private lateinit var titleText: TextView
     private lateinit var contentContainer: LinearLayout
@@ -85,7 +94,6 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
 
     private val calendar = Calendar.getInstance()
 
-    // File picker launcher
     private val filePickerLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -139,6 +147,10 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View? {
+        // Load fonts once
+        regularFont = ResourcesCompat.getFont(requireContext(), R.font.regular)
+        mediumFont = ResourcesCompat.getFont(requireContext(), R.font.medium)
+
         return inflater.inflate(R.layout.fragment_edit_field_bottom_sheet, container, false)
     }
 
@@ -157,6 +169,11 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
         cancelButton = view.findViewById(R.id.cancelButton)
         progressBar = view.findViewById(R.id.progressbar)
 
+        // Apply medium font to the title
+        titleText.typeface = mediumFont
+        addButton.typeface = mediumFont
+        cancelButton.typeface = mediumFont
+
         cancelButton.setOnClickListener { dismiss() }
     }
 
@@ -169,24 +186,18 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
                         val updatedTask = it.getOrNull() as? Task
                         if (updatedTask != null) {
                             Log.d(TAG, "Task update successful for field: $fieldType")
-
-                            // Extract the actual new value based on the field type
                             val newValue = when (fieldType) {
                                 FIELD_TITLE -> updatedTask.title
                                 FIELD_DESCRIPTION -> updatedTask.description
-                                FIELD_DATETIME -> updatedTask.due_date // This should be the formatted date/time string from the backend
+                                FIELD_DATETIME -> updatedTask.due_date
                                 FIELD_PRIORITY -> updatedTask.priority
                                 FIELD_REPEAT -> updatedTask.repeat
-                                FIELD_ATTACHMENT -> {
-                                    // Extract the filename from the URL, if it's not null
-                                    updatedTask.attachment?.substringAfterLast("/") ?: ""
-                                }
+                                FIELD_ATTACHMENT -> updatedTask.attachment?.substringAfterLast("/")
+                                    ?: ""
 
                                 FIELD_COLLECTION -> updatedTask.category
                                 else -> ""
                             }
-
-                            // Call the listener with the real, extracted value
                             if (newValue != null) {
                                 listener?.onFieldUpdated(fieldType, newValue)
                             }
@@ -206,7 +217,6 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
                     } else {
                         val errorMessage = it.exceptionOrNull()?.message ?: "Update failed"
                         val userFriendlyMessage = parseUserFriendlyErrorMessage(errorMessage)
-
                         Log.e(TAG, "Task update failed for field: $fieldType. Error: $errorMessage")
                         Toast.makeText(context, userFriendlyMessage, Toast.LENGTH_LONG).show()
                         listener?.onUpdateError(errorMessage)
@@ -259,8 +269,13 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
         }
         showLoading()
         Log.i(TAG, "Initiating update for task $taskId. Field: $fieldName, New Value: $fieldValue")
-        // Pass the value as a String to ensure correct serialization
-        taskViewModel.updateTaskField(taskId, fieldName, fieldValue.toString())
+        if (fieldName == "attachment" && selectedFile != null) {
+            Log.d(TAG, "Updating attachment for task $taskId with file: ${selectedFile?.name}")
+            taskViewModel.updateAttachment(taskId, selectedFile!!)
+        } else {
+            taskViewModel.updateTaskField(taskId, fieldName, fieldValue.toString())
+            Log.d(TAG, "Updating field $fieldName for task $taskId with value: $fieldValue")
+        }
     }
 
     private fun setupBottomSheet() {
@@ -276,8 +291,19 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
         }
     }
 
+    // Helper function to apply font
+    private fun applyFont(view: View, font: Typeface?) {
+        when (view) {
+            is TextView -> view.typeface = font
+            is EditText -> view.typeface = font
+            is Button -> view.typeface = font
+            is RadioButton -> view.typeface = font
+        }
+    }
+
     private fun setupTitleEdit() {
         titleText.text = "Edit Task Title"
+        applyFont(titleText, mediumFont)
 
         val editText = EditText(requireContext()).apply {
             hint = "Enter task title"
@@ -285,10 +311,9 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
             setTextColor(resources.getColor(android.R.color.white))
             setHintTextColor(resources.getColor(R.color.dividerColor))
             setPadding(16, 16, 16, 16)
+            applyFont(this, regularFont) // Apply regular font to the EditText
         }
-
         contentContainer.addView(editText)
-
         addButton.setThrottleClickListener {
             val newValue = editText.text.toString().trim()
             if (newValue.isNotEmpty()) {
@@ -306,6 +331,7 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
 
     private fun setupDescriptionEdit() {
         titleText.text = "Edit Description"
+        applyFont(titleText, mediumFont)
 
         val editText = EditText(requireContext()).apply {
             hint = "Enter task description"
@@ -315,10 +341,9 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
             setPadding(16, 16, 16, 16)
             minHeight = 120
             maxLines = 5
+            applyFont(this, regularFont)
         }
-
         contentContainer.addView(editText)
-
         addButton.setThrottleClickListener {
             val newValue = editText.text.toString().trim()
             if (newValue != currentValue) {
@@ -332,40 +357,36 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
 
     private fun setupDateTimeEdit() {
         titleText.text = "Select Date & Time"
+        applyFont(titleText, mediumFont)
 
         val dateTimeButton = Button(requireContext()).apply {
             text = if (currentValue.isNotEmpty()) currentValue else "Select Date & Time"
             setBackgroundResource(R.drawable.button_background)
             setTextColor(resources.getColor(android.R.color.white))
             setPadding(24, 24, 24, 24)
+            applyFont(this, regularFont) // Apply regular font to the button text
         }
-
         contentContainer.addView(dateTimeButton)
-
         var selectedDateTime = currentValue
-
         dateTimeButton.setOnClickListener {
             Log.d(TAG, "Date/Time button clicked. Opening picker.")
             showDateTimePicker { formattedDateTime ->
                 selectedDateTime = formattedDateTime
                 dateTimeButton.text = selectedDateTime
+                applyFont(dateTimeButton, regularFont)
             }
         }
-
         addButton.setThrottleClickListener {
             try {
                 if (selectedDateTime.isNotEmpty()) {
                     if (selectedDateTime != currentValue) {
                         val inputFormat = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
                         inputFormat.timeZone = TimeZone.getDefault()
-
                         val outputFormat =
                             SimpleDateFormat("yyyy-MM-dd' 'HH:mm", Locale.getDefault())
                         outputFormat.timeZone = TimeZone.getTimeZone("UTC")
-
                         val parsedDate = inputFormat.parse(selectedDateTime)
                         val formattedDateTime = parsedDate?.let { outputFormat.format(it) }
-
                         if (formattedDateTime != null) {
                             updateTaskField("due_date", formattedDateTime)
                         } else {
@@ -406,29 +427,27 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
 
     private fun setupPriorityEdit() {
         titleText.text = "Select Priority"
+        applyFont(titleText, mediumFont)
 
         val radioGroup = RadioGroup(requireContext())
-        val priorities = listOf("low", "medium", "high") // Changed to lowercase
+        val priorities = listOf("low", "medium", "high")
 
         priorities.forEach { priority ->
             val radioButton = RadioButton(requireContext()).apply {
-                text =
-                    priority.replaceFirstChar { it.titlecase(Locale.getDefault()) } // Display text is capitalized
+                text = priority.replaceFirstChar { it.titlecase(Locale.getDefault()) }
                 setTextColor(resources.getColor(android.R.color.white))
                 setPadding(16, 16, 16, 16)
                 isChecked = priority.equals(currentValue, ignoreCase = true)
+                applyFont(this, regularFont)
             }
             radioGroup.addView(radioButton)
         }
-
         contentContainer.addView(radioGroup)
-
         addButton.setThrottleClickListener {
             val selectedId = radioGroup.checkedRadioButtonId
             if (selectedId != -1) {
                 val selectedRadioButton = radioGroup.findViewById<RadioButton>(selectedId)
-                val selectedPriority =
-                    selectedRadioButton.text.toString().lowercase() // Send lowercase to API
+                val selectedPriority = selectedRadioButton.text.toString().lowercase()
                 if (!selectedPriority.equals(currentValue, ignoreCase = true)) {
                     updateTaskField("priority", selectedPriority)
                 } else {
@@ -443,6 +462,7 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
 
     private fun setupRepeatEdit() {
         titleText.text = "Select Repeat Option"
+        applyFont(titleText, mediumFont)
 
         val radioGroup = RadioGroup(requireContext())
         val repeatOptions = listOf("Daily", "Weekly", "Monthly", "Yearly")
@@ -453,12 +473,11 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
                 setTextColor(resources.getColor(android.R.color.white))
                 setPadding(16, 16, 16, 16)
                 isChecked = option.equals(currentValue, ignoreCase = true)
+                applyFont(this, regularFont)
             }
             radioGroup.addView(radioButton)
         }
-
         contentContainer.addView(radioGroup)
-
         addButton.setThrottleClickListener {
             val selectedId = radioGroup.checkedRadioButtonId
             if (selectedId != -1) {
@@ -478,64 +497,49 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
 
     private fun setupAttachmentEdit() {
         titleText.text = "Add Attachment"
+        applyFont(titleText, mediumFont)
 
         val attachmentButton = Button(requireContext()).apply {
             text = "Choose File"
             setBackgroundResource(R.drawable.button_background)
             setTextColor(resources.getColor(android.R.color.white))
             setPadding(24, 24, 24, 24)
+            applyFont(this, regularFont)
         }
-
         attachmentText = TextView(requireContext()).apply {
             text = if (currentValue.isNotEmpty()) currentValue else "No file selected"
             setTextColor(resources.getColor(android.R.color.white))
             setPadding(16, 16, 16, 16)
             textSize = 16f
+            applyFont(this, regularFont)
         }
-
         fileSizeText = TextView(requireContext()).apply {
             text = ""
             setTextColor(resources.getColor(R.color.dividerColor))
             setPadding(16, 8, 16, 16)
             textSize = 12f
+            applyFont(this, regularFont)
         }
-
         contentContainer.addView(attachmentButton)
         contentContainer.addView(attachmentText)
         contentContainer.addView(fileSizeText)
-
         if (currentValue.isNotEmpty()) {
             attachmentText.text = currentValue
         }
-
         attachmentButton.setOnClickListener {
             launchFilePicker()
         }
-
         addButton.setThrottleClickListener {
+            // Check if a file is selected
             selectedFile?.let { file ->
-                // The following logic is commented out because it's incorrect.
-                // It sends a filename as a String in a PATCH request, which your API rejects.
-                // You must first upload the file and then PATCH the URL.
-                /* if (file.name != currentValue) {
-                    val attachmentPart = selectedFile?.let {
-                        val requestFile = it.asRequestBody("multipart/form-data".toMediaType())
-                        MultipartBody.Part.createFormData("attachment", file.name, requestFile)
-                    }
-                    updateTaskField("attachment", file.name)
+                if (file.name != currentValue) {
+                    updateTaskField("attachment", file)
                 } else {
                     Log.d(TAG, "Attachment not changed. Dismissing.")
                     dismiss()
                 }
-                */
-
-                Toast.makeText(
-                    context,
-                    "Attachment update is not supported with this API call.",
-                    Toast.LENGTH_LONG
-                ).show()
-
             } ?: run {
+                // This block runs if selectedFile is null
                 if (currentValue.isNotEmpty()) {
                     dismiss()
                 } else {
@@ -604,6 +608,7 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
 
     private fun setupCollectionEdit() {
         titleText.text = "Select Collection"
+        applyFont(titleText, mediumFont)
 
         val radioGroup = RadioGroup(requireContext())
         val collections = listOf("Health", "Work", "Personal", "Study", "Finance", "Other")
@@ -614,12 +619,11 @@ class EditFieldBottomSheet : BottomSheetDialogFragment() {
                 setTextColor(resources.getColor(android.R.color.white))
                 setPadding(16, 16, 16, 16)
                 isChecked = collection.equals(currentValue, ignoreCase = true)
+                applyFont(this, regularFont)
             }
             radioGroup.addView(radioButton)
         }
-
         contentContainer.addView(radioGroup)
-
         addButton.setThrottleClickListener {
             val selectedId = radioGroup.checkedRadioButtonId
             if (selectedId != -1) {

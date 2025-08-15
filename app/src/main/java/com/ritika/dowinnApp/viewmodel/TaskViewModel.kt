@@ -9,6 +9,9 @@ import com.ritika.dowinnApp.repository.TaskRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
 class TaskViewModel : ViewModel() {
@@ -58,6 +61,16 @@ class TaskViewModel : ViewModel() {
         viewModelScope.launch {
             val result = repository.updateTaskField(taskId, fieldName, fieldValue)
             _updateResult.value = result
+        }
+    }
+
+    // Inside your TaskViewModel
+    fun updateAttachment(taskId: Int, file: File) {
+        viewModelScope.launch {
+            val requestFile = file.asRequestBody("multipart/form-data".toMediaType())
+            val attachmentPart =
+                MultipartBody.Part.createFormData("attachment", file.name, requestFile)
+            _updateResult.value = repository.updateAttachment(taskId, attachmentPart)
         }
     }
 }
