@@ -21,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
     private lateinit var sessionManager: UserSessionManager
 
+
     // Flag to control splash screen visibility
     private var isNavGraphReady = false
 

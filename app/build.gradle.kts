@@ -5,18 +5,16 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("org.jetbrains.kotlin.kapt")
     id("kotlin-parcelize")
-
+    id("com.google.gms.google-services")
 }
-
-// 🔹 Load local.properties
 val localProperties = Properties().apply {
     val file = rootProject.file("local.properties")
     if (file.exists()) {
         file.inputStream().use { load(it) }
     }
 }
-val webClientId = localProperties.getProperty("default_web_client_id") ?: ""
-val BASE_URL=localProperties.getProperty("BASE_URL")?:""
+val BASE_URL = localProperties.getProperty("BASE_URL") ?: ""
+val DEFAULT_WEB_CLIENT_ID = localProperties.getProperty("DEFAULT_WEB_CLIENT_ID") ?: ""
 
 android {
     namespace = "com.ritika.dowinnApp"
@@ -30,11 +28,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
-        // 🔹 Inject into BuildConfig
-        buildConfigField("String", "DEFAULT_WEB_CLIENT_ID", "\"$webClientId\"")
         buildConfigField("String", "BASE_URL", "\"$BASE_URL\"")
-
+        buildConfigField("String", "DEFAULT_WEB_CLIENT_ID", "\"$DEFAULT_WEB_CLIENT_ID\"")
     }
 
     buildTypes {
@@ -56,7 +51,7 @@ android {
                 "META-INF/LICENSE.txt",
                 "META-INF/NOTICE",
                 "META-INF/NOTICE.txt",
-                "META-INF/io.netty.versions.properties" // ✅ Add this line
+                "META-INF/io.netty.versions.properties"
             )
         }
     }
@@ -76,53 +71,47 @@ android {
 }
 
 dependencies {
-    // Splash screen
-    implementation(libs.androidx.core.splashscreen)
+    // 1. Firebase Platform: Use the BoM to manage all Firebase dependency versions
+    implementation(platform("com.google.firebase:firebase-bom:33.4.0")) // Use the latest stable version
 
+    // 2. Core AndroidX Libraries
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
-    implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.core.splashscreen)
+
+    // 3. Navigation and Fragments
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-    implementation(libs.firebase.appdistribution.gradle)
+    implementation("androidx.fragment:fragment-ktx:1.8.8")
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    // 4. Material Design (Consolidated)
+    implementation("com.google.android.material:material:1.11.0") // Use one version
+    implementation(libs.material) // Keep if it refers to the same version
 
-    implementation(libs.material.v190)
+    // 5. Firebase and Google Auth
+    implementation("com.google.firebase:firebase-auth-ktx") // Use KTX version
+    implementation("com.google.android.gms:play-services-auth:21.0.0") // Specific version often required for GMS
 
-    // Google Sign-In
-    implementation(libs.play.services.auth)
+    // 6. Credentials API (for modern sign-in and Passkey support)
+    implementation(libs.androidx.credentials)
+    implementation(libs.androidx.credentials.play.services.auth)
+    implementation(libs.googleid)
 
-    // Firebase Authentication
-    implementation(libs.firebase.auth)
-
-    // Firebase BOM
-    implementation(platform(libs.firebase.bom))
-
-    // Glide
+    // 7. Third-Party Libraries
     implementation("com.github.bumptech.glide:glide:4.16.0")
     kapt("com.github.bumptech.glide:compiler:4.16.0")
-
-    implementation(libs.material.v1110)
-    implementation(libs.androidx.navigation.fragment.ktx.v274)
-    implementation(libs.androidx.navigation.ui.ktx.v274)
-
-        implementation(libs.androidx.constraintlayout.v221)
-        implementation(libs.material.v1120)
-        implementation("androidx.fragment:fragment-ktx:1.8.8")
-    implementation("com.google.android.material:material:1.11.0")
-    implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.9.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
     implementation("com.facebook.shimmer:shimmer:0.5.0")
 
+    // 8. Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
 
 }
-// 🔹 Apply Google Services plugin
-apply(plugin = "com.google.gms.google-services")
+

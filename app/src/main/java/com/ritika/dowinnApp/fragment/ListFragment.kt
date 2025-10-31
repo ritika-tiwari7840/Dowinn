@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -263,6 +264,11 @@ class ListFragment : Fragment() {
             e.printStackTrace()
         }
     }
+    fun toggleLayout() {
+        // Navigate to CardFragment instead of changing RecyclerView
+        findNavController().navigate(R.id.action_listFragment_to_cardFragment)
+    }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

@@ -8,6 +8,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.ritika.dowinnApp.BuildConfig
+import com.ritika.dowinnApp.R
 
 class UserSessionManager(private val context: Context) {
 
@@ -91,7 +92,7 @@ class UserSessionManager(private val context: Context) {
         val googleSignInClient = GoogleSignIn.getClient(
             context,
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(BuildConfig.DEFAULT_WEB_CLIENT_ID).requestEmail().build()
+                .requestIdToken(R.string.default_web_client_id.toString()).requestEmail().build()
         )
 
         googleSignInClient.signOut().addOnCompleteListener { task ->
@@ -118,7 +119,7 @@ class UserSessionManager(private val context: Context) {
         val googleSignInClient = GoogleSignIn.getClient(
             context,
             GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(BuildConfig.DEFAULT_WEB_CLIENT_ID).requestEmail().build()
+                .requestIdToken(R.string.default_web_client_id.toString()).requestEmail().build()
         )
 
         googleSignInClient.revokeAccess().addOnCompleteListener { task ->

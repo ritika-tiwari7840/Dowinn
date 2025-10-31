@@ -10,13 +10,14 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -32,6 +33,7 @@ class TaskFragment : Fragment() {
     private lateinit var childNavController: NavController
 
     private var lastClickTimeFab = 0L
+    private var isListView = true // ✅ default list view
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +51,6 @@ class TaskFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        // Find nested NavController for child fragments
         val navHostFragment =
             childFragmentManager.findFragmentById(R.id.nav_host_fragment1) as NavHostFragment
         childNavController = navHostFragment.navController
@@ -57,20 +58,22 @@ class TaskFragment : Fragment() {
         setupDrawer()
         setupHeader()
         setupFab()
+        setupMenu()
 
-        // Listen to navigation changes inside nested graph
         childNavController.addOnDestinationChangedListener { _, destination, _ ->
             when (destination.id) {
                 R.id.listFragment -> {
                     setTopAppBarForTasks()
                     binding.fab.show()
                     binding.fabSearch.show()
+                    binding.topAppBar.menu.findItem(R.id.action_toggle_view)?.isVisible = true // ✅ show toggle
                 }
 
                 R.id.detailsFragment -> {
                     setTopAppBarForDetails()
                     binding.fab.hide()
                     binding.fabSearch.hide()
+                    binding.topAppBar.menu.findItem(R.id.action_toggle_view)?.isVisible = false // ✅ hide toggle
                 }
             }
         }
@@ -157,16 +160,13 @@ class TaskFragment : Fragment() {
             ContextCompat.getDrawable(requireContext(), R.drawable.baseline_keyboard_backspace_24)
 
         binding.topAppBar.setNavigationOnClickListener {
-            // Use childNavController to navigate back instead of popBackStack
             if (!childNavController.popBackStack()) {
-                // If popBackStack returns false (no more fragments to pop),
-                // navigate back to ListFragment explicitly
                 childNavController.navigate(R.id.listFragment)
             }
         }
 
         binding.topAppBar.title = "Task Details"
-        binding.fab.visibility = View.GONE // hide add button
+        binding.fab.visibility = View.GONE
     }
 
     fun setTopAppBarForTasks() {
@@ -178,11 +178,33 @@ class TaskFragment : Fragment() {
         }
 
         binding.topAppBar.title = "Tasks"
-        binding.fab.visibility = View.VISIBLE // show add button again
+        binding.fab.visibility = View.VISIBLE
     }
 
+    // ✅ Setup menu and toggle handling
+    private fun setupMenu() {
+        binding.topAppBar.inflateMenu(R.menu.top_app_bar_menu)
 
-    override fun onDestroyView() {
+        binding.topAppBar.setOnMenuItemClickListener { menuItem ->
+            when (menuItem.itemId) {
+                R.id.action_toggle_view -> {
+                    // If currently in ListFragment, go to CardFragment
+                    val currentDestination = childNavController.currentDestination?.id
+                    if (currentDestination == R.id.listFragment) {
+                        childNavController.navigate(R.id.action_listFragment_to_cardFragment)
+                        menuItem.setIcon(R.drawable.ic_list_view) // show list icon when in card mode
+                    } else if (currentDestination == R.id.cardFragment) {
+                        childNavController.navigate(R.id.action_cardFragment_to_listFragment)
+                        menuItem.setIcon(R.drawable.ic_grid_view) // show grid icon when in list mode
+                    }
+                    true
+                }
+                else -> false
+            }
+        }
+}
+
+        override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
     }
